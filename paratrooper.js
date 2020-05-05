@@ -28,8 +28,7 @@ class Paratrooper {
 
     window.addEventListener('keydown', this.handleKey);
 
-    this.rotateLeft = false;
-    this.rotateRight = false;
+    this.rotateDirection = 0;
     this.barrelPosition = 0;
   }
 
@@ -47,22 +46,19 @@ class Paratrooper {
       switch(e.key) {
         case 'ArrowUp':
           // Stops the barrel and shoots.
-          this.rotateLeft = false;
-          this.rotateRight = false;
+          this.rotateDirection = 0;
           // @TODO shoots. Duh.
           break;
 
         case 'ArrowLeft':
           if (this.barrelPosition > -0.50) {
-            this.rotateLeft = true;
-            this.rotateRight = false;
+            this.rotateDirection = -1;
           }
           break;   
           
         case 'ArrowRight':
           if (this.barrelPosition < 0.50) {
-            this.rotateLeft = false;
-            this.rotateRight = true;
+            this.rotateDirection = 1;
           }
           break;
 
@@ -134,46 +130,32 @@ class Paratrooper {
 
   // The barrel itself.
   barrel = () => {
+
+    // Rotate takes -1 (left), 1 (right) or 0 (stop) as rotating direction.
+    const rotate = (dir) => {
+      this.barrelPosition = this.barrelPosition + (dir * this.BARREL_ROTATE_SPEED);
+      this.ctx.translate(this.width/2, (this.height - this.BASE_WIDTH_HEIGHT - this.twh));
+      this.ctx.rotate(this.barrelPosition * Math.PI);
+      this.ctx.translate(-this.width/2, -(this.height - this.BASE_WIDTH_HEIGHT - this.twh));
+      if (dir && (this.barrelPosition <= -0.5 || this.barrelPosition >= 0.5)) {
+        this.barrelPosition = (dir * 0.5);
+        this.rotateDirection = 0;
+      }
+    }
+
+    // Save the state, keeping it clean.
+    this.ctx.save();
+
+    rotate(this.rotateDirection);
+
+    // This is the actual drawing of the barrel.
+    this.ctx.fillStyle = this.BLUE;
+    this.ctx.beginPath();
     // Barrel width.
     const bw = Math.round(this.twh/3);
-    this.ctx.save();
-    this.ctx.fillStyle = this.BLUE;
-
-    // @TODO refactor these parts below.
-    if (!this.rotateLeft && !this.rotateRight) {
-      this.ctx.translate(this.width/2, (this.height - this.BASE_WIDTH_HEIGHT - this.twh));
-      this.ctx.rotate(this.barrelPosition * Math.PI);
-      this.ctx.translate(-this.width/2, -(this.height - this.BASE_WIDTH_HEIGHT - this.twh));
-    }
-
-    // We rotate the barrel half an arc left and right: from -0.5 Pi to 0.5 Pi.
-    if (this.rotateLeft) {
-      this.barrelPosition = this.barrelPosition - this.BARREL_ROTATE_SPEED;
-      this.ctx.translate(this.width/2, (this.height - this.BASE_WIDTH_HEIGHT - this.twh));
-      this.ctx.rotate(this.barrelPosition * Math.PI);
-      this.ctx.translate(-this.width/2, -(this.height - this.BASE_WIDTH_HEIGHT - this.twh));
-      if (this.barrelPosition <= -0.5) {
-        this.barrelPosition = -0.5;
-        this.rotateLeft = false;
-      }
-    }
-
-    if (this.rotateRight) {
-      this.barrelPosition = this.barrelPosition + this.BARREL_ROTATE_SPEED;
-      this.ctx.translate(this.width/2, (this.height - this.BASE_WIDTH_HEIGHT - this.twh));
-      this.ctx.rotate(this.barrelPosition * Math.PI);
-      this.ctx.translate(-this.width/2, -(this.height - this.BASE_WIDTH_HEIGHT - this.twh));
-      if (this.barrelPosition >= 0.5) {
-        this.barrelPosition = 0.5;
-        this.rotateRight = false;
-      }
-    }
-
-    this.ctx.beginPath();
     this.ctx.rect((this.width/2 - Math.round(bw)/2), (this.height - this.BASE_WIDTH_HEIGHT - (this.twh*2)), bw, this.twh);
     this.ctx.fill();
     this.ctx.restore();
-
   }
 
 }
