@@ -1,3 +1,5 @@
+import Bullet from "./bullet.js";
+
 export default class Barrel {
 
   ROTATE_SPEED = 0.01;
@@ -7,6 +9,7 @@ export default class Barrel {
     this.turret = turret;
     this.barrelPosition = 0;
     this.rotateDirection = 0;
+    this.bullets = [];
 
     window.addEventListener('keydown', this.handleKey);
   }
@@ -18,7 +21,8 @@ export default class Barrel {
         case 'ArrowUp':
           // Stops the barrel and shoots.
           this.rotateDirection = 0;
-          // @TODO shoots. Duh.
+          // Create a bullet (shoot).
+          this.bullets.push(new Bullet(this.canvas, this.turret, this.barrelPosition));
           break;
 
         case 'ArrowLeft':
@@ -42,6 +46,11 @@ export default class Barrel {
   }
 
   draw = () => {
+      // Animate the bullets.
+      this.bullets.forEach(function (bullet, index) {
+        bullet.draw();
+      });
+
       // Save the state, keeping it clean.
       this.canvas.ctx.save();
       // Rotate takes -1 (left), 1 (right) or 0 (stop) as rotating direction.
