@@ -22,7 +22,7 @@ export default class FPS {
     this.canvas.ctx.font = "48px sans-serif";
     this.canvas.ctx.textAlign = "left"
     this.canvas.ctx.textBaseline = "top";
-    this.canvas.ctx.fillText(this.fps, 100, 100);
+    this.canvas.ctx.fillText(this.fps, 1500, 1100);
   }
 
 }

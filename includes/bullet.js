@@ -9,6 +9,7 @@ export default class Bullet {
     this.barrelPosition = barrelPosition;
     this.bulletX = this.canvas.width/2 - this.BULLET_WIDTH_HEIGHT/2;
     this.bulletY = this.canvas.height - this.canvas.BASE_WIDTH_HEIGHT - this.turret.twh - this.BULLET_WIDTH_HEIGHT/2;
+    this.isGone = false;
   }
 
   draw = () => {
@@ -20,8 +21,15 @@ export default class Bullet {
     // Yay for maths!
     this.bulletX = this.bulletX + this.BULLET_SPEED * Math.sin(this.barrelPosition * Math.PI);
     this.bulletY = this.bulletY - this.BULLET_SPEED * Math.cos(this.barrelPosition * Math.PI);
+
+    if (this.wentOffCanvas()) {
+      this.isGone = true;
+    }
   }
 
-  // TODO: self destruct this object when it's off canvas.
+  // Check if the bullet went off canvas.
+  wentOffCanvas = () => {
+    return ((this.bulletY < 0) || (this.bulletY > this.canvas.height) || (this.bulletX < 0) || (this.bulletX > this.canvas.width));
+  }
 
 }

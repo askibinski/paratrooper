@@ -47,7 +47,13 @@ export default class Barrel {
 
   draw = () => {
       // Animate the bullets.
-      this.bullets.forEach(function (bullet, index) {
+      this.bullets.forEach((bullet, index) => {
+        // If the bullet went off canvas the reference can  be removed and 
+        // javascript will automatically reclaim memory.
+        if (bullet.isGone) {
+          this.bullets.splice(index, 1);
+          return;
+        }
         bullet.draw();
       });
 

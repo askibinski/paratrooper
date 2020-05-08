@@ -3,17 +3,36 @@ export default class Heli {
   SCALE = 0.36;
   ROTOR_BLADE_MAX_LENGTH = 130;
   ROTOR_SPEED = 20;
+  HELI_HEIGHT_RIGHT = 100;
+  HELI_HEIGHT_LEFT = 200;
+  HELI_SPEED = 5;
+  HELI_START_CANVAS_OFFSET = 100;
 
-  constructor(canvas) {
+  // If you look at the original game, I think helis from the right always
+  // fly above the helis from the left (they never use the same height).
+  // So, everything is based on the direction.
+  constructor(canvas, direction) {
     this.canvas = canvas;
-    this.startX = 200;
-    this.startY = 1167;
+    this.heliDirection = direction;
+    this.startX = direction === -1 ? -this.HELI_START_CANVAS_OFFSET : this.canvas.width + this.HELI_START_CANVAS_OFFSET;
+    this.startY = direction === -1 ? this.HELI_HEIGHT_LEFT : this.HELI_HEIGHT_RIGHT;
     this.rotorBladeLength = 0;
     this.rotorBladeDirection = -1;
     this.tailRotation = 0;
+    this.isGone = false;
   }
 
   draw = () => {
+
+    // Mirror the heli around the y-axis (for helis coming from the left)
+    this.canvas.ctx.save();
+
+    if (this.heliDirection === -1) {
+      this.canvas.ctx.translate(this.startX, this.startY);
+      this.canvas.ctx.scale(-1, 1);
+      this.canvas.ctx.translate(-this.startX, -this.startY);
+    }
+
     // Tail, long part.
     this.canvas.ctx.strokeStyle = this.canvas.WHITE;
     this.canvas.ctx.lineWidth = (this.SCALE * 15);
@@ -45,6 +64,7 @@ export default class Heli {
     this.canvas.ctx.fill();
 
     // Heli body, stroke.
+
     this.canvas.ctx.strokeStyle = this.canvas.WHITE;
     this.canvas.ctx.lineWidth = (this.SCALE * 10);
     this.canvas.ctx.beginPath();
@@ -138,6 +158,21 @@ export default class Heli {
     this.canvas.ctx.stroke();
     this.tailRotation = this.tailRotation + 0.1;
     this.canvas.ctx.restore();
+
+    // The second restore for the mirroring.
+    this.canvas.ctx.restore();
+
+    // Move the whole thing fly!
+    this.startX = this.startX - (this.heliDirection * this.HELI_SPEED);
+
+    if (this.wentOffCanvas()) {
+      this.isGone = true;
+    }
+  }
+
+  // Check if the heli flied over and went off canvas.
+  wentOffCanvas = () => {
+    return ((this.startX > (this.canvas.width + this.HELI_START_CANVAS_OFFSET)) || (this.startX < (-this.HELI_START_CANVAS_OFFSET)));
   }
 
 }
