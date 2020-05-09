@@ -3,22 +3,22 @@ export default class Heli {
   SCALE = 0.36;
   ROTOR_BLADE_MAX_LENGTH = 130;
   ROTOR_SPEED = 20;
-  HELI_HEIGHT_RIGHT = 100;
-  HELI_HEIGHT_LEFT = 200;
   HELI_SPEED = 5;
   HELI_START_CANVAS_OFFSET = 100;
+  HELI_TAIL_LENGTH = 180;
 
   // If you look at the original game, I think helis from the right always
   // fly above the helis from the left (they never use the same height).
-  // So, everything is based on the direction.
-  constructor(canvas, direction) {
+  constructor(canvas, direction, height) {
     this.canvas = canvas;
     this.heliDirection = direction;
     this.startX = direction === -1 ? -this.HELI_START_CANVAS_OFFSET : this.canvas.width + this.HELI_START_CANVAS_OFFSET;
-    this.startY = direction === -1 ? this.HELI_HEIGHT_LEFT : this.HELI_HEIGHT_RIGHT;
+    this.startY = height;
     this.rotorBladeLength = 0;
     this.rotorBladeDirection = -1;
     this.tailRotation = 0;
+    // Used for easier collision detecting.
+    this.collionWidth = direction * Math.round(this.SCALE * this.HELI_TAIL_LENGTH);
     this.isGone = false;
   }
 
@@ -38,7 +38,7 @@ export default class Heli {
     this.canvas.ctx.lineWidth = (this.SCALE * 15);
     this.canvas.ctx.beginPath();
     this.canvas.ctx.moveTo(this.startX + (this.SCALE * 150), this.startY - (this.SCALE * 15));
-    this.canvas.ctx.lineTo(this.startX + (this.SCALE * 330), this.startY - (this.SCALE * 15));
+    this.canvas.ctx.lineTo(this.startX + (this.SCALE * (150 + this.HELI_TAIL_LENGTH)), this.startY - (this.SCALE * 15));
     this.canvas.ctx.stroke();
 
     // Tail short part below.
@@ -64,7 +64,6 @@ export default class Heli {
     this.canvas.ctx.fill();
 
     // Heli body, stroke.
-
     this.canvas.ctx.strokeStyle = this.canvas.WHITE;
     this.canvas.ctx.lineWidth = (this.SCALE * 10);
     this.canvas.ctx.beginPath();
@@ -158,6 +157,14 @@ export default class Heli {
     this.canvas.ctx.stroke();
     this.tailRotation = this.tailRotation + 0.1;
     this.canvas.ctx.restore();
+
+    // Hit X range (debug)
+    // this.canvas.ctx.strokeStyle = '#FF0000';
+    // this.canvas.ctx.lineWidth = (this.SCALE * 15);
+    // this.canvas.ctx.beginPath();
+    // this.canvas.ctx.moveTo(this.startX, this.startY);
+    // this.canvas.ctx.lineTo(this.startX + (this.SCALE * (2 * this.HELI_TAIL_LENGTH)), this.startY);
+    // this.canvas.ctx.stroke();
 
     // The second restore for the mirroring.
     this.canvas.ctx.restore();

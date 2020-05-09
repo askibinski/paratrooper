@@ -3,9 +3,10 @@ export default class Bullet {
   BULLET_WIDTH_HEIGHT = 10;
   BULLET_SPEED = 10;
 
-  constructor(canvas, turret, barrelPosition) {
+  constructor(canvas, turret, barrelPosition, flightController) {
     this.canvas = canvas;
     this.turret = turret;
+    this.flightController = flightController;
     this.barrelPosition = barrelPosition;
     this.bulletX = this.canvas.width/2 - this.BULLET_WIDTH_HEIGHT/2;
     this.bulletY = this.canvas.height - this.canvas.BASE_WIDTH_HEIGHT - this.turret.twh - this.BULLET_WIDTH_HEIGHT/2;
@@ -24,7 +25,28 @@ export default class Bullet {
 
     if (this.wentOffCanvas()) {
       this.isGone = true;
+      return;
     }
+
+    // We should check if we hit anything when the bullet is at these heights.
+    if (this.bulletY >= this.flightController.HELI_HEIGHT_HIGH && this.bulletY <= this.flightController.HELI_HEIGHT_LOW) {
+      this.checkHeliHit();
+    }
+
+  }
+
+  checkHeliHit = () => {
+    this.flightController.helis.forEach((heli, index) => {
+      if (this.bulletY > (heli.startY - 25) && this.bulletY < (heli.startY + 25)) {
+        let heliCollisionRange = [heli.startX, heli.startX + (2 * heli.collionWidth)];
+        heliCollisionRange.sort((a, b) => a - b);
+        // console.log(heliCollisionRange)
+        if (this.bulletX >= heliCollisionRange[0] && this.bulletX <= heliCollisionRange[1]) {
+          heli.isGone = true;
+          this.isGone = true;
+        }
+      }
+    });
   }
 
   // Check if the bullet went off canvas.

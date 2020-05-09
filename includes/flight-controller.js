@@ -2,26 +2,35 @@ import Heli from "./heli.js";
 
 export default class FlightController {
 
+  HELI_HEIGHT_HIGH = 100;
+  HELI_HEIGHT_LOW = 200;
+
   constructor(canvas) {
     this.canvas = canvas;
     this.helis = [];
+    this.delay = { '-1': 0, '1': 0 };
+    this.maxHelis = 3;
   }
 
   run() {
 
+    for (let i in this.delay) {
+      if (this.delay[i] > 0) {
+        this.delay[i]--;
+      }
+    }
 
-    // @TODO for now we just make some choppers. Later on, we will 
-    // create "waves" and make fine tune the amount coming from 
-    // the left and the right.
-    if (this.helis.length < 5) {
-      // 1% change each run to create a chopper.
-      // @TODO prevent choppers from overlapping.
-      if (this.getRndInteger(1, 100) === 1) {
+    // 50% chance from which direction.
+    let toggle = !!this.getRndInteger(0, 2) ? -1 : 1;
+    
+    if (this.helis.length < this.maxHelis && this.delay[toggle] === 0) {
+      // 0,5% change each run to create a chopper.
+      if (this.getRndInteger(1, 1000) <= 15) {
+        let height = toggle === -1 ? this.HELI_HEIGHT_LOW : this.HELI_HEIGHT_HIGH;
+        this.heli = this.helis.push(new Heli(this.canvas, toggle * 1, height));
 
-        // 50% chance from which direction.
-        let toggle;
-        !!this.getRndInteger(0, 2) ? toggle = -1 : toggle = 1;
-        this.heli = this.helis.push(new Heli(this.canvas, toggle * 1));
+        // Create a delay so we don't immediately create a new heli.
+        this.delay[toggle] = 30;
       }
     }
 

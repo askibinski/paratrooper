@@ -4,9 +4,10 @@ export default class Barrel {
 
   ROTATE_SPEED = 0.01;
 
-  constructor(canvas, turret) {
+  constructor(canvas, turret, flightController) {
     this.canvas = canvas;
     this.turret = turret;
+    this.flightController = flightController;
     this.barrelPosition = 0;
     this.rotateDirection = 0;
     this.bullets = [];
@@ -22,7 +23,7 @@ export default class Barrel {
           // Stops the barrel and shoots.
           this.rotateDirection = 0;
           // Create a bullet (shoot).
-          this.bullets.push(new Bullet(this.canvas, this.turret, this.barrelPosition));
+          this.bullets.push(new Bullet(this.canvas, this.turret, this.barrelPosition, this.flightController));
           break;
 
         case 'ArrowLeft':

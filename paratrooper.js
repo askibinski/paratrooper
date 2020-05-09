@@ -14,8 +14,8 @@ export default class Paratrooper {
     // Might do proper DI later with a container.
     // Example: https://dev.to/azure/dependency-injection-in-javascript-101-2b1e
     this.turret = new Turret(this.canvas);
-    this.barrel = new Barrel(this.canvas, this.turret);
     this.flightController = new FlightController(this.canvas);
+    this.barrel = new Barrel(this.canvas, this.turret, this.flightController);
     
     // This shows the FPS on screen.
     this.fps = new FPS(this.canvas);
