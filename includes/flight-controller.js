@@ -8,6 +8,8 @@ export default class FlightController {
   }
 
   run() {
+
+
     // @TODO for now we just make some choppers. Later on, we will 
     // create "waves" and make fine tune the amount coming from 
     // the left and the right.
