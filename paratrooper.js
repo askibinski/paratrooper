@@ -21,7 +21,7 @@ export default class Paratrooper {
     this.fps = new FPS(this.canvas);
 
     this.lastUpdate = performance.now();
-    this.fpsInterval = Math.round(1000 / this.DESIRED_FPS);
+    this.fpsInterval = Math.round(1000 / this.MAX_FPS);
     window.requestAnimationFrame(this.drawLoop);
   }
 
