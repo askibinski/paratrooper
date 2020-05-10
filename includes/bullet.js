@@ -37,10 +37,9 @@ export default class Bullet {
 
   checkHeliHit = () => {
     this.flightController.helis.forEach((heli, index) => {
-      if (this.bulletY > (heli.startY - 25) && this.bulletY < (heli.startY + 25)) {
+      if (!heli.isExploding && this.bulletY > (heli.startY - 25) && this.bulletY < (heli.startY + 25)) {
         let heliCollisionRange = [heli.startX, heli.startX + (2 * heli.collionWidth)];
         heliCollisionRange.sort((a, b) => a - b);
-        // console.log(heliCollisionRange)
         if (this.bulletX >= heliCollisionRange[0] && this.bulletX <= heliCollisionRange[1]) {
           heli.isExploding = true;
           this.isGone = true;
