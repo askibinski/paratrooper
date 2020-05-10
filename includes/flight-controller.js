@@ -21,11 +21,11 @@ export default class FlightController {
     }
 
     // 50% chance from which direction.
-    let toggle = !!this.getRndInteger(0, 2) ? -1 : 1;
+    let toggle = !!this.canvas.getRndInteger(0, 2) ? -1 : 1;
     
     if (this.helis.length < this.maxHelis && this.delay[toggle] === 0) {
       // 0,5% change each run to create a chopper.
-      if (this.getRndInteger(1, 1000) <= 15) {
+      if (this.canvas.getRndInteger(1, 1000) <= 15) {
         let height = toggle === -1 ? this.HELI_HEIGHT_LOW : this.HELI_HEIGHT_HIGH;
         this.heli = this.helis.push(new Heli(this.canvas, toggle * 1, height));
 
@@ -44,10 +44,5 @@ export default class FlightController {
       heli.draw();
     });
   }
-
-  getRndInteger(min, max) {
-    return Math.floor(Math.random() * (max - min) ) + min;
-  }
-
 
 }

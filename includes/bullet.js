@@ -42,7 +42,7 @@ export default class Bullet {
         heliCollisionRange.sort((a, b) => a - b);
         // console.log(heliCollisionRange)
         if (this.bulletX >= heliCollisionRange[0] && this.bulletX <= heliCollisionRange[1]) {
-          heli.isGone = true;
+          heli.isExploding = true;
           this.isGone = true;
         }
       }
