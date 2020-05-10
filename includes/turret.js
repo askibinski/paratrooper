@@ -10,6 +10,7 @@ export default class Turret {
     this.base();
     this.turretBaseTop();
     this.turretBaseBottom();
+    this.turretBasePivot();
   }
 
   // Base.
@@ -33,6 +34,14 @@ export default class Turret {
     this.canvas.ctx.fillStyle = this.canvas.PINK;
     this.canvas.ctx.beginPath();
     this.canvas.ctx.rect((this.canvas.width/2) - (this.twh/2), (this.canvas.height - this.canvas.BASE_WIDTH_HEIGHT - this.twh), this.twh , this.twh);
+    this.canvas.ctx.fill();
+  }
+
+  // The pivot point.
+  turretBasePivot = () => {
+    this.canvas.ctx.fillStyle = this.canvas.BLUE;
+    this.canvas.ctx.beginPath();
+    this.canvas.ctx.arc(this.canvas.width/2, (this.canvas.height - (this.canvas.BASE_WIDTH_HEIGHT + this.twh)), this.twh/8, 2 * Math.PI, 0);
     this.canvas.ctx.fill();
   }
 
