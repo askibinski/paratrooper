@@ -18,14 +18,250 @@ export default class Heli {
     this.rotorBladeDirection = -1;
     this.tailRotation = 0;
     // Used for easier collision detecting.
-    this.collionWidth = direction * Math.round(this.SCALE * this.HELI_TAIL_LENGTH);
+    this.collisionWidth = direction * Math.round(this.SCALE * this.HELI_TAIL_LENGTH);
     this.isExploding = false;
     this.frame = 0;
     this.frameSinceExplosion = 0;
     this.isGone = false;
-    // "explode" multiplyers.
-    this.multiplyers = [0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4];
-    this.multiplyers = this.canvas.shuffle(this.multiplyers);
+
+    // "explode" multipliers. These are used to change the direction and speed
+    // of the falling parts in a random way.
+    // The length of these arrays corresponds to the number of items!
+    this.multipliers = [0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3];
+    this.explodeRotateDirections = [-1, -1, -1, -1, -1 -1, 1, 1, 1, 1, 1, 1];
+    this.multipliers = this.canvas.shuffle(this.multipliers);
+    this.explodeRotateDirections = this.canvas.shuffle(this.explodeRotateDirections);
+  }
+
+  // A wrapper around every item part which needs to be drawn, containing logic
+  // for the explosion.
+  drawItem = (name, i) => {
+    let x = !this.isExploding ? this.startX : this.startX + this.heliDirection * (this.HELI_SPEED * this.multipliers[i]);
+    let y = !this.isExploding ? this.startY : this.startY + (this.frameSinceExplosion * this.frameSinceExplosion * this.multipliers[i]);
+
+    const { centerX, centerY } = this.getItemPartCenter(name, x, y);
+
+    if (this.isExploding) {
+      this.canvas.ctx.save();
+      this.canvas.ctx.translate(centerX,  centerY);
+      this.canvas.ctx.rotate(this.explodeRotateDirections[i] * this.tailRotation / 2 * Math.PI);
+      this.canvas.ctx.translate(-centerX, -centerY);
+    }
+
+    this.drawItemPart(name, x, y, centerX, centerY);
+
+    if (this.isExploding) {
+      this.canvas.ctx.restore();
+    }
+  }
+
+  // The core part of drawing an item part.
+  drawItemPart = (name, x, y, centerX, centerY) => {
+    switch (name) {
+      case 'tail-long':
+        this.canvas.ctx.strokeStyle = this.canvas.WHITE;
+        this.canvas.ctx.lineWidth = (this.SCALE * 15);
+        this.canvas.ctx.beginPath();
+        this.canvas.ctx.moveTo(x + (this.SCALE * 150), y - (this.SCALE * 15));
+        this.canvas.ctx.lineTo(x + (this.SCALE * (150 + this.HELI_TAIL_LENGTH)), y - (this.SCALE * 15));
+        this.canvas.ctx.stroke();
+        break;
+      case 'tail-short':
+        this.canvas.ctx.strokeStyle = this.canvas.WHITE;
+        this.canvas.ctx.lineWidth = (this.SCALE * 20);
+        this.canvas.ctx.beginPath();
+        this.canvas.ctx.moveTo(x + (this.SCALE * 150), y);
+        this.canvas.ctx.lineTo(x + (this.SCALE * 270), y);
+        this.canvas.ctx.stroke();
+        break;
+      case 'heli-body':
+        this.canvas.ctx.fillStyle = this.canvas.BLACK;
+        this.canvas.ctx.lineWidth = (this.SCALE * 10);
+        this.canvas.ctx.beginPath();
+        this.canvas.ctx.moveTo(x, y);
+        this.canvas.ctx.lineTo(x + (this.SCALE * 50), y - (this.SCALE * 50));
+        this.canvas.ctx.lineTo(x + (this.SCALE * 150), y - (this.SCALE * 50));
+        this.canvas.ctx.lineTo(x + (this.SCALE * 200), y);
+        this.canvas.ctx.lineTo(x + (this.SCALE * 150), y + (this.SCALE * 50));
+        this.canvas.ctx.lineTo(x + (this.SCALE * 50), y + (this.SCALE * 50));
+        this.canvas.ctx.lineTo(x, y);
+        this.canvas.ctx.closePath();
+        this.canvas.ctx.fill();
+      case 'heli-body-stroke':
+        this.canvas.ctx.strokeStyle = this.canvas.WHITE;
+        this.canvas.ctx.lineWidth = (this.SCALE * 10);
+        this.canvas.ctx.beginPath();
+        this.canvas.ctx.moveTo(x, y);
+        this.canvas.ctx.lineTo(x + (this.SCALE * 50), y - (this.SCALE * 50));
+        this.canvas.ctx.lineTo(x + (this.SCALE * 150), y - (this.SCALE * 50));
+        this.canvas.ctx.lineTo(x + (this.SCALE * 200), y);
+        this.canvas.ctx.lineTo(x + (this.SCALE * 150), y + (this.SCALE * 50));
+        this.canvas.ctx.lineTo(x + (this.SCALE * 50), y + (this.SCALE * 50));
+        this.canvas.ctx.lineTo(x, y);
+        this.canvas.ctx.closePath();
+        this.canvas.ctx.stroke();
+        break;
+      case 'heli-body-window':
+        this.canvas.ctx.fillStyle = this.canvas.WHITE;
+        this.canvas.ctx.beginPath();
+        this.canvas.ctx.moveTo(x, y);
+        this.canvas.ctx.lineTo(x + (this.SCALE * 50), y - (this.SCALE * 50));
+        this.canvas.ctx.lineTo(x + (this.SCALE * 125), y - (this.SCALE * 50));
+        this.canvas.ctx.lineTo(x + (this.SCALE * 75), y);
+        this.canvas.ctx.moveTo(x, y);
+        this.canvas.ctx.lineTo(x, y);
+        this.canvas.ctx.closePath();
+        this.canvas.ctx.fill();
+        break;
+      case 'rotor-connection':
+        this.canvas.ctx.strokeStyle = this.canvas.WHITE;
+        this.canvas.ctx.lineWidth = (this.SCALE * 15);
+        this.canvas.ctx.beginPath();
+        this.canvas.ctx.moveTo(x + (this.SCALE * 100), y - (this.SCALE * 50));
+        this.canvas.ctx.lineTo(x + (this.SCALE * 100), y - (this.SCALE * 80));
+        this.canvas.ctx.stroke();
+        break;
+      case 'top-rotor-left':
+        this.canvas.ctx.strokeStyle = this.canvas.PINK;
+        this.canvas.ctx.lineWidth = (this.SCALE * 15);
+        this.canvas.ctx.beginPath();
+        this.canvas.ctx.moveTo(x + (this.SCALE * 100), y - (this.SCALE * 80));
+        this.canvas.ctx.lineTo(x + ((this.SCALE * 100) - (this.SCALE * this.rotorBladeLength)), y - (this.SCALE * 80));
+        this.canvas.ctx.stroke();
+        break;
+      case 'top-rotor-right':
+        this.canvas.ctx.strokeStyle = this.canvas.PINK;
+        this.canvas.ctx.lineWidth = (this.SCALE * 15);
+        this.canvas.ctx.beginPath();
+        this.canvas.ctx.moveTo(x + (this.SCALE * 100), y - (this.SCALE * 80));
+        this.canvas.ctx.lineTo(x + ((this.SCALE * 100) + (this.SCALE * this.rotorBladeLength)), y - (this.SCALE * 80));
+        this.canvas.ctx.stroke();
+        break;
+      case 'landing-gear-left':
+        this.canvas.ctx.strokeStyle = this.canvas.WHITE;
+        this.canvas.ctx.lineWidth = (this.SCALE * 15);
+        this.canvas.ctx.beginPath();
+        this.canvas.ctx.moveTo(x + (this.SCALE * 50), y + (this.SCALE * 50));
+        this.canvas.ctx.lineTo(x + (this.SCALE * 50), y + (this.SCALE * 85));
+        this.canvas.ctx.stroke();
+        break;
+      case 'landing-gear-right':
+        this.canvas.ctx.strokeStyle = this.canvas.WHITE;
+        this.canvas.ctx.lineWidth = (this.SCALE * 15);
+        this.canvas.ctx.beginPath();
+        this.canvas.ctx.lineTo(x + (this.SCALE * 150), y + (this.SCALE * 50));
+        this.canvas.ctx.lineTo(x + (this.SCALE * 150), y + (this.SCALE * 85));
+        this.canvas.ctx.stroke();
+        break;
+      case 'landing-gear-bar':
+        this.canvas.ctx.strokeStyle = this.canvas.BLUE;
+        this.canvas.ctx.lineWidth = (this.SCALE * 10);
+        this.canvas.ctx.beginPath();
+        this.canvas.ctx.moveTo(x - (this.SCALE * 20), y + (this.SCALE * 65));
+        this.canvas.ctx.lineTo(x, y + (this.SCALE * 85));
+        this.canvas.ctx.lineTo(x + (this.SCALE * 210), y + (this.SCALE * 85));
+        this.canvas.ctx.stroke();
+        break;
+      case 'tail-rotor':
+        if (!this.isExploding) {
+          this.canvas.ctx.save();
+          this.canvas.ctx.translate(centerX, centerY);
+          this.canvas.ctx.rotate(-this.tailRotation * Math.PI);
+          this.canvas.ctx.translate(-centerX, -centerY);
+        }
+        this.canvas.ctx.strokeStyle = this.canvas.PINK;
+        this.canvas.ctx.lineWidth = (this.SCALE * 15);
+        this.canvas.ctx.beginPath();
+        this.canvas.ctx.moveTo(x + (this.SCALE * 330), y - ((this.SCALE * 15) - (this.SCALE * 25)));
+        this.canvas.ctx.lineTo(x + (this.SCALE * 330), y - ((this.SCALE * 15) + (this.SCALE * 25)));
+        this.canvas.ctx.stroke();
+        this.tailRotation = this.tailRotation + 0.1;
+        this.canvas.ctx.restore();
+        // @TODO this is a weak way to make sure all the falling parts from the explosion
+        // are off-canvas so we can remove the heli in flight controller.
+        if (y > (2 * this.canvas.height)) {
+          this.isGone = true;
+        }
+        break;
+    }
+  }
+
+  // Used for the translate back and forth in case of exploding.
+  getItemPartCenter = (name, x, y) => {
+    switch (name) {
+      case 'tail-long':
+        return { 
+          centerX: x + (this.SCALE * (150 + (this.HELI_TAIL_LENGTH / 2))),
+          centerY: y - (this.SCALE * 15),
+        }
+        break;
+      case 'tail-short':
+        return { 
+          centerX: x + (this.SCALE * 210),
+          centerY: y,
+        }
+        break;
+      case 'heli-body':
+        return { 
+          centerX: x + (this.SCALE * 100),
+          centerY: y,
+        }
+        break;
+      case 'heli-body-stroke':
+        return { 
+          centerX: x + (this.SCALE * 100),
+          centerY: y,
+        }
+        break;
+      case 'heli-body-window':
+        return { 
+          centerX: x + (this.SCALE * 62.5),
+          centerY: y - (this.SCALE * 25),
+        }
+        break;
+      case 'rotor-connection':
+        return { 
+          centerX: x + (this.SCALE * 100),
+          centerY: y - (this.SCALE * 65),
+        }
+        break;
+      case 'top-rotor-left':
+        return { 
+          centerX: x + (this.SCALE * 100),
+          centerY: y - (this.SCALE * 80),
+        }
+        break;
+      case 'top-rotor-right':
+        return { 
+          centerX: x + (this.SCALE * 100),
+          centerY: y - (this.SCALE * 80),
+        }
+        break;
+      case 'landing-gear-left':
+        return { 
+          centerX: x + (this.SCALE * 50),
+          centerY: y + (this.SCALE * 67.5),
+        }
+        break;
+      case 'landing-gear-right':
+        return { 
+          centerX: x + (this.SCALE * 150),
+          centerY: y + (this.SCALE * 76.5),
+        }
+        break;
+      case 'landing-gear-bar':
+        return { 
+          centerX: x + (this.SCALE * 105),
+          centerY: y + (this.SCALE * 85),
+        }
+        break;
+      case 'tail-rotor':
+        return { 
+          centerX: x + (this.SCALE * 330),
+          centerY: y - (this.SCALE * 15),
+        }
+        break;
+    }
   }
 
   draw = () => {
@@ -40,288 +276,30 @@ export default class Heli {
 
     // Mirror the heli around the y-axis (for helis coming from the left).
     this.canvas.ctx.save();
-
     if (this.heliDirection === -1) {
       this.canvas.ctx.translate(this.startX, this.startY);
       this.canvas.ctx.scale(-1, 1);
       this.canvas.ctx.translate(-this.startX, -this.startY);
     }
 
-    // Tail, long part.
-    {
-      let x = !this.isExploding ? this.startX : this.startX + this.heliDirection * (this.HELI_SPEED * this.multiplyers[0]);
-      let y = !this.isExploding ? this.startY : this.startY + (this.frameSinceExplosion * this.frameSinceExplosion * this.multiplyers[0]);
-      if (this.isExploding) {
-        this.canvas.ctx.save();
-        this.canvas.ctx.translate(x + (this.SCALE * (150 + (this.HELI_TAIL_LENGTH / 2))),  y - (this.SCALE * 15));
-        this.canvas.ctx.rotate(-this.tailRotation / 2 * Math.PI);
-        this.canvas.ctx.translate(-x + -(this.SCALE * (150 + (this.HELI_TAIL_LENGTH / 2))), -(y - (this.SCALE * 15)));
-      }
-      this.canvas.ctx.strokeStyle = this.canvas.WHITE;
-      this.canvas.ctx.lineWidth = (this.SCALE * 15);
-      this.canvas.ctx.beginPath();
-      this.canvas.ctx.moveTo(x + (this.SCALE * 150), y - (this.SCALE * 15));
-      this.canvas.ctx.lineTo(x + (this.SCALE * (150 + this.HELI_TAIL_LENGTH)), y - (this.SCALE * 15));
-      this.canvas.ctx.stroke();
-      if (this.isExploding) {
-        this.canvas.ctx.restore();
-      }
-    }
-
-    // Tail short part below.
-    {
-      let x = !this.isExploding ? this.startX : this.startX + this.heliDirection * (this.HELI_SPEED * this.multiplyers[1]);
-      let y = !this.isExploding ? this.startY : this.startY + (this.frameSinceExplosion * this.frameSinceExplosion * this.multiplyers[1]);
-      if (this.isExploding) {
-        this.canvas.ctx.save();
-        this.canvas.ctx.translate(x + (this.SCALE * 210), y);
-        this.canvas.ctx.rotate(this.tailRotation/2 * Math.PI);
-        this.canvas.ctx.translate(-(x + (this.SCALE * 210)), -y);
-      }
-      this.canvas.ctx.strokeStyle = this.canvas.WHITE;
-      this.canvas.ctx.lineWidth = (this.SCALE * 20);
-      this.canvas.ctx.beginPath();
-      this.canvas.ctx.moveTo(x + (this.SCALE * 150), y);
-      this.canvas.ctx.lineTo(x + (this.SCALE * 270), y);
-      this.canvas.ctx.stroke();
-      if (this.isExploding) {
-        this.canvas.ctx.restore();
-      }
-    }
-
-    // Heli body, background color.
-    {
-      let x = !this.isExploding ? this.startX : this.startX + this.heliDirection * (this.HELI_SPEED * this.multiplyers[2]);
-      let y = !this.isExploding ? this.startY : this.startY + (this.frameSinceExplosion * this.frameSinceExplosion * this.multiplyers[2]);
-      this.canvas.ctx.fillStyle = this.canvas.BLACK;
-      this.canvas.ctx.lineWidth = (this.SCALE * 10);
-      this.canvas.ctx.beginPath();
-      this.canvas.ctx.moveTo(x, this.startY);
-      this.canvas.ctx.lineTo(x + (this.SCALE * 50), y - (this.SCALE * 50));
-      this.canvas.ctx.lineTo(x + (this.SCALE * 150), y - (this.SCALE * 50));
-      this.canvas.ctx.lineTo(x + (this.SCALE * 200), y);
-      this.canvas.ctx.lineTo(x + (this.SCALE * 150), y + (this.SCALE * 50));
-      this.canvas.ctx.lineTo(x + (this.SCALE * 50), y + (this.SCALE * 50));
-      this.canvas.ctx.lineTo(x, y);
-      this.canvas.ctx.closePath();
-      this.canvas.ctx.fill();
-    }
-
-    // Heli body, stroke.
-    {
-      let x = !this.isExploding ? this.startX : this.startX + this.heliDirection * (this.HELI_SPEED * this.multiplyers[2]);
-      let y = !this.isExploding ? this.startY : this.startY + (this.frameSinceExplosion * this.frameSinceExplosion * this.multiplyers[2]);
-      if (this.isExploding) {
-        this.canvas.ctx.save();
-        this.canvas.ctx.translate(x + (this.SCALE * 100), y);
-        this.canvas.ctx.rotate(this.tailRotation/2 * Math.PI);
-        this.canvas.ctx.translate(-(x + (this.SCALE * 100)), -y);
-      }
-      this.canvas.ctx.strokeStyle = this.canvas.WHITE;
-      this.canvas.ctx.lineWidth = (this.SCALE * 10);
-      this.canvas.ctx.beginPath();
-      this.canvas.ctx.moveTo(x, y);
-      this.canvas.ctx.lineTo(x + (this.SCALE * 50), y - (this.SCALE * 50));
-      this.canvas.ctx.lineTo(x + (this.SCALE * 150), y - (this.SCALE * 50));
-      this.canvas.ctx.lineTo(x + (this.SCALE * 200), y);
-      this.canvas.ctx.lineTo(x + (this.SCALE * 150), y + (this.SCALE * 50));
-      this.canvas.ctx.lineTo(x + (this.SCALE * 50), y + (this.SCALE * 50));
-      this.canvas.ctx.lineTo(x, y);
-      this.canvas.ctx.closePath();
-      this.canvas.ctx.stroke();
-      if (this.isExploding) {
-        this.canvas.ctx.restore();
-      }
-    }
-
-    // Heli body "window".
-    {
-      let x = !this.isExploding ? this.startX : this.startX + this.heliDirection * (this.HELI_SPEED * this.multiplyers[3]);
-      let y = !this.isExploding ? this.startY : this.startY + (this.frameSinceExplosion * this.frameSinceExplosion * this.multiplyers[3]);
-      if (this.isExploding) {
-        this.canvas.ctx.save();
-        this.canvas.ctx.translate(x + (this.SCALE * 62.5), y - (this.SCALE * 25));
-        this.canvas.ctx.rotate(this.tailRotation/2 * Math.PI);
-        this.canvas.ctx.translate(-(x + (this.SCALE * 62.5)), -(y - (this.SCALE * 25)));
-      }
-      this.canvas.ctx.fillStyle = this.canvas.WHITE;
-      this.canvas.ctx.beginPath();
-      this.canvas.ctx.moveTo(x, y);
-      this.canvas.ctx.lineTo(x + (this.SCALE * 50), y - (this.SCALE * 50));
-      this.canvas.ctx.lineTo(x + (this.SCALE * 125), y - (this.SCALE * 50));
-      this.canvas.ctx.lineTo(x + (this.SCALE * 75), y);
-      this.canvas.ctx.moveTo(x, y);
-      this.canvas.ctx.lineTo(x, y);
-      this.canvas.ctx.closePath();
-      this.canvas.ctx.fill();
-      if (this.isExploding) {
-        this.canvas.ctx.restore();
-      }
-    }
-
-    // Rotor connection.
-    {
-      let x = !this.isExploding ? this.startX : this.startX + this.heliDirection * (this.HELI_SPEED * this.multiplyers[0]);
-      let y = !this.isExploding ? this.startY : this.startY + (this.frameSinceExplosion * this.frameSinceExplosion * this.multiplyers[0]);
-      if (this.isExploding) {
-        this.canvas.ctx.save();
-        this.canvas.ctx.translate(x + (this.SCALE * 100), y - (this.SCALE * 65));
-        this.canvas.ctx.rotate(this.tailRotation/2 * Math.PI);
-        this.canvas.ctx.translate(-(x + (this.SCALE * 100)), -(y - (this.SCALE * 65)));
-      }
-      this.canvas.ctx.strokeStyle = this.canvas.WHITE;
-      this.canvas.ctx.lineWidth = (this.SCALE * 15);
-      this.canvas.ctx.beginPath();
-      this.canvas.ctx.moveTo(x + (this.SCALE * 100), y - (this.SCALE * 50));
-      this.canvas.ctx.lineTo(x + (this.SCALE * 100), y - (this.SCALE * 80));
-      this.canvas.ctx.stroke();
-      if (this.isExploding) {
-        this.canvas.ctx.restore();
-      }
-    }
-
-    // Top rotor (left).
-    {
-      let x = !this.isExploding ? this.startX : this.startX + this.heliDirection * (this.HELI_SPEED * this.multiplyers[5]);
-      let y = !this.isExploding ? this.startY : this.startY + (this.frameSinceExplosion * this.frameSinceExplosion * this.multiplyers[5]);
-      if (this.isExploding) {
-        this.canvas.ctx.save();
-        this.canvas.ctx.translate(x + (this.SCALE * 100), y - (this.SCALE * 80));
-        this.canvas.ctx.rotate(-this.tailRotation/2 * Math.PI);
-        this.canvas.ctx.translate(-(x + (this.SCALE * 100)), -(y - (this.SCALE * 80)));
-      }
-      this.canvas.ctx.strokeStyle = this.canvas.PINK;
-      this.canvas.ctx.lineWidth = (this.SCALE * 15);
-      this.canvas.ctx.beginPath();
-      this.canvas.ctx.moveTo(x + (this.SCALE * 100), y - (this.SCALE * 80));
-      this.canvas.ctx.lineTo(x + ((this.SCALE * 100) - (this.SCALE * this.rotorBladeLength)), y - (this.SCALE * 80));
-      this.canvas.ctx.stroke();
-      if (this.isExploding) {
-        this.canvas.ctx.restore();
-      }
-    }
-
-    // Top rotor (right).
-    {
-      let x = !this.isExploding ? this.startX : this.startX + this.heliDirection * (this.HELI_SPEED * this.multiplyers[5]);
-      let y = !this.isExploding ? this.startY : this.startY + (this.frameSinceExplosion * this.frameSinceExplosion * this.multiplyers[5]);
-      if (this.isExploding) {
-        this.canvas.ctx.save();
-        this.canvas.ctx.translate(x + (this.SCALE * 100), y - (this.SCALE * 80));
-        this.canvas.ctx.rotate(-this.tailRotation/2 * Math.PI);
-        this.canvas.ctx.translate(-(x + (this.SCALE * 100)), -(y - (this.SCALE * 80)));
-      }
-      this.canvas.ctx.strokeStyle = this.canvas.PINK;
-      this.canvas.ctx.lineWidth = (this.SCALE * 15);
-      this.canvas.ctx.beginPath();
-      this.canvas.ctx.moveTo(x + (this.SCALE * 100), y - (this.SCALE * 80));
-      this.canvas.ctx.lineTo(x + ((this.SCALE * 100) + (this.SCALE * this.rotorBladeLength)), y - (this.SCALE * 80));
-      this.canvas.ctx.stroke();
-      if (this.isExploding) {
-        this.canvas.ctx.restore();
-      }
-    }
+    // Draw all the things!
+    this.drawItem('tail-long', 0);
+    this.drawItem('tail-short', 1);
+    this.drawItem('heli-body', 2);
+    this.drawItem('heli-body-stroke', 3);
+    this.drawItem('heli-body-window', 4);
+    this.drawItem('rotor-connection', 5);
+    this.drawItem('top-rotor-left', 6);
+    this.drawItem('top-rotor-right', 7);
+    this.drawItem('landing-gear-left', 8);
+    this.drawItem('landing-gear-right', 9);
+    this.drawItem('landing-gear-bar', 10);
+    this.drawItem('tail-rotor', 11);
 
     // Visually, this gives the impression of rotating blades, because our brain want to believe.
     this.rotorBladeLength = this.rotorBladeLength + (this.rotorBladeDirection * this.ROTOR_SPEED);
     if (this.rotorBladeLength < 0 || this.rotorBladeLength > this.ROTOR_BLADE_MAX_LENGTH) {
       this.rotorBladeDirection = -1 * this.rotorBladeDirection;
-    }
-
-    // Landing gear left connection.
-    {
-      let x = !this.isExploding ? this.startX : this.startX + this.heliDirection * (this.HELI_SPEED * this.multiplyers[6]);
-      let y = !this.isExploding ? this.startY : this.startY + (this.frameSinceExplosion * this.frameSinceExplosion * this.multiplyers[6]);
-      if (this.isExploding) {
-        this.canvas.ctx.save();
-        this.canvas.ctx.translate(x + (this.SCALE * 50), y + (this.SCALE * 67.5));
-        this.canvas.ctx.rotate(-this.tailRotation/2 * Math.PI);
-        this.canvas.ctx.translate(-(x + (this.SCALE * 50)), -(y + (this.SCALE * 67.5)));
-      }
-      this.canvas.ctx.strokeStyle = this.canvas.WHITE;
-      this.canvas.ctx.lineWidth = (this.SCALE * 15);
-      this.canvas.ctx.beginPath();
-      this.canvas.ctx.moveTo(x + (this.SCALE * 50), y + (this.SCALE * 50));
-      this.canvas.ctx.lineTo(x + (this.SCALE * 50), y + (this.SCALE * 85));
-      this.canvas.ctx.stroke();
-      if (this.isExploding) {
-        this.canvas.ctx.restore();
-      }
-    }
-
-    // Landing gear right connection.
-    {
-      let x = !this.isExploding ? this.startX : this.startX + this.heliDirection * (this.HELI_SPEED * this.multiplyers[7]);
-      let y = !this.isExploding ? this.startY : this.startY + (this.frameSinceExplosion * this.frameSinceExplosion * this.multiplyers[7]);
-      if (this.isExploding) {
-        this.canvas.ctx.save();
-        this.canvas.ctx.translate(x + (this.SCALE * 150), y + (this.SCALE * 76.5));
-        this.canvas.ctx.rotate(this.tailRotation/2 * Math.PI);
-        this.canvas.ctx.translate(-(x + (this.SCALE * 150)), -(y + (this.SCALE * 76.5)));
-      }
-      this.canvas.ctx.strokeStyle = this.canvas.WHITE;
-      this.canvas.ctx.lineWidth = (this.SCALE * 15);
-      this.canvas.ctx.beginPath();
-      this.canvas.ctx.lineTo(x + (this.SCALE * 150), y + (this.SCALE * 50));
-      this.canvas.ctx.lineTo(x + (this.SCALE * 150), y + (this.SCALE * 85));
-      this.canvas.ctx.stroke();
-      if (this.isExploding) {
-        this.canvas.ctx.restore();
-      }
-    }
-
-    // Landing gear bar.
-    {
-      let x = !this.isExploding ? this.startX : this.startX + this.heliDirection * (this.HELI_SPEED * this.multiplyers[8]);
-      let y = !this.isExploding ? this.startY : this.startY + (this.frameSinceExplosion * this.frameSinceExplosion * this.multiplyers[8]);
-      if (this.isExploding) {
-        this.canvas.ctx.save();
-        this.canvas.ctx.translate(x + (this.SCALE * 105), y + (this.SCALE * 85));
-        this.canvas.ctx.rotate(this.tailRotation/2 * Math.PI);
-        this.canvas.ctx.translate(-(x + (this.SCALE * 105)), -(y + (this.SCALE * 85)));
-      }
-      this.canvas.ctx.strokeStyle = this.canvas.BLUE;
-      this.canvas.ctx.lineWidth = (this.SCALE * 10);
-      this.canvas.ctx.beginPath();
-      this.canvas.ctx.moveTo(x - (this.SCALE * 20), y + (this.SCALE * 65));
-      this.canvas.ctx.lineTo(x, y + (this.SCALE * 85));
-      this.canvas.ctx.lineTo(x + (this.SCALE * 210), y + (this.SCALE * 85));
-      this.canvas.ctx.stroke();
-      if (this.isExploding) {
-        this.canvas.ctx.restore();
-      }
-    }
-
-    // Tail rotor (rotating).
-    {
-      let x = !this.isExploding ? this.startX : this.startX + this.heliDirection * (this.HELI_SPEED * this.multiplyers[4]);
-      let y = !this.isExploding ? this.startY : this.startY + (this.frameSinceExplosion * this.frameSinceExplosion * this.multiplyers[4]);
-      if (this.isExploding) {
-        this.canvas.ctx.save();
-        this.canvas.ctx.translate(x + (this.SCALE * 330), y - ((this.SCALE * 15)));
-        this.canvas.ctx.rotate(this.tailRotation/2 * Math.PI);
-        this.canvas.ctx.translate(-(x + (this.SCALE * 330)), -(y - ((this.SCALE * 15))));
-      } 
-      else {
-        this.canvas.ctx.save();
-        this.canvas.ctx.translate(x + (this.SCALE * 330), y - (this.SCALE * 15));
-        this.canvas.ctx.rotate(this.tailRotation * Math.PI);
-        this.canvas.ctx.translate(-1 * (x + (this.SCALE * 330)), -1 * (y - (this.SCALE * 15)));
-      }
-      this.canvas.ctx.strokeStyle = this.canvas.PINK;
-      this.canvas.ctx.lineWidth = (this.SCALE * 15);
-      this.canvas.ctx.beginPath();
-      this.canvas.ctx.moveTo(x + (this.SCALE * 330), y - ((this.SCALE * 15) - (this.SCALE * 25)));
-      this.canvas.ctx.lineTo(x + (this.SCALE * 330), y - ((this.SCALE * 15) + (this.SCALE * 25)));
-      this.canvas.ctx.stroke();
-      this.tailRotation = this.tailRotation + 0.1;
-      this.canvas.ctx.restore();
-
-      // @TODO this is a weak way to make sure all the falling parts from the explosion
-      // are off-canvas so we can remove the heli in flight controller.
-      if (y > (2 * this.canvas.height)) {
-        this.isGone = true;
-      }
     }
 
     // Hit X range (debug)
