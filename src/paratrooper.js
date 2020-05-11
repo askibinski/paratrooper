@@ -1,8 +1,8 @@
-import Canvas from "./includes/canvas.js";
-import Barrel from "./includes/barrel.js";
-import Turret from "./includes/turret.js";
-import FlightController from "./includes/flight-controller.js";
-import FPS from "./includes/fps.js";
+import Canvas from "./canvas.js";
+import Barrel from "./barrel.js";
+import Turret from "./turret.js";
+import FlightController from "./flight-controller.js";
+import FPS from "./fps.js";
 
 export default class Paratrooper {
 

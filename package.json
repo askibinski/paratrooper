@@ -1,0 +1,27 @@
+{
+  "name": "paratrooper",
+  "version": "1.0.0",
+  "description": "Greatest game of all time",
+  "main": "index.js",
+  "scripts": {
+    "tsc": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/askibinski/paratrooper.git"
+  },
+  "keywords": [
+    "game"
+  ],
+  "author": "Albert Skibinski",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/askibinski/paratrooper/issues"
+  },
+  "homepage": "https://github.com/askibinski/paratrooper#readme",
+  "devDependencies": {
+    "typescript": "^3.8.3",
+    "eslint": "^7.0.0",
+    "prettier": "^2.0.5"
+  }
+}
