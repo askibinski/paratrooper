@@ -1,6 +1,6 @@
 import Bullet from "./bullet.js";
 export default class Barrel {
-    constructor(canvas, turret, flightController) {
+    constructor(canvas, turret, flightController, score) {
         this.ROTATE_SPEED = 0.01;
         // Handle aiming and shooting with the keys.
         this.handleKey = (e) => {
@@ -10,7 +10,7 @@ export default class Barrel {
                         // Stops the barrel and shoots.
                         this.rotateDirection = 0;
                         // Create a bullet (shoot).
-                        this.bullets.push(new Bullet(this.canvas, this.turret, this.barrelPosition, this.flightController));
+                        this.bullets.push(new Bullet(this.canvas, this.turret, this.barrelPosition, this.flightController, this.score));
                         break;
                     case 'ArrowLeft':
                         if (this.barrelPosition > -0.50) {
@@ -43,9 +43,9 @@ export default class Barrel {
             this.canvas.ctx.save();
             // Rotate takes -1 (left), 1 (right) or 0 (stop) as rotating direction.
             this.barrelPosition = this.barrelPosition + (this.rotateDirection * this.ROTATE_SPEED);
-            this.canvas.ctx.translate(this.canvas.width / 2, (this.canvas.height - this.canvas.BASE_WIDTH_HEIGHT - this.turret.twh));
+            this.canvas.ctx.translate(this.canvas.width / 2, (this.canvas.height - this.turret.BASE_WIDTH_HEIGHT - this.turret.twh - this.turret.SCORE_HEIGHT));
             this.canvas.ctx.rotate(this.barrelPosition * Math.PI);
-            this.canvas.ctx.translate(-this.canvas.width / 2, -(this.canvas.height - this.canvas.BASE_WIDTH_HEIGHT - this.turret.twh));
+            this.canvas.ctx.translate(-this.canvas.width / 2, -(this.canvas.height - this.turret.BASE_WIDTH_HEIGHT - this.turret.twh - this.turret.SCORE_HEIGHT));
             // Stop the barrel rotating too far left or right.
             if (this.rotateDirection && (this.barrelPosition <= -0.5 || this.barrelPosition >= 0.5)) {
                 this.barrelPosition = (this.rotateDirection * 0.5);
@@ -56,13 +56,14 @@ export default class Barrel {
             this.canvas.ctx.beginPath();
             // Barrel width.
             const bw = Math.round(this.turret.twh / 3);
-            this.canvas.ctx.rect((this.canvas.width / 2 - Math.round(bw) / 2), (this.canvas.height - this.canvas.BASE_WIDTH_HEIGHT - (this.turret.twh * 2)), bw, this.turret.twh);
+            this.canvas.ctx.rect((this.canvas.width / 2 - Math.round(bw) / 2), (this.canvas.height - this.turret.BASE_WIDTH_HEIGHT - (this.turret.twh * 2) - this.turret.SCORE_HEIGHT), bw, this.turret.twh);
             this.canvas.ctx.fill();
             this.canvas.ctx.restore();
         };
         this.canvas = canvas;
         this.turret = turret;
         this.flightController = flightController;
+        this.score = score;
         this.barrelPosition = 0;
         this.rotateDirection = 0;
         this.bullets = [];

@@ -1,6 +1,5 @@
 export default class Canvas {
 
-  BASE_WIDTH_HEIGHT = 200;
   WHITE = "#ffffff";
   PINK = '#fe52fc';
   BLACK = '#000000';

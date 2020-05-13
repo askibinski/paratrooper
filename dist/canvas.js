@@ -1,6 +1,5 @@
 export default class Canvas {
     constructor() {
-        this.BASE_WIDTH_HEIGHT = 200;
         this.WHITE = "#ffffff";
         this.PINK = '#fe52fc';
         this.BLACK = '#000000';

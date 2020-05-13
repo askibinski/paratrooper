@@ -1,5 +1,5 @@
 export default class Bullet {
-    constructor(canvas, turret, barrelPosition, flightController) {
+    constructor(canvas, turret, barrelPosition, flightController, score) {
         this.BULLET_WIDTH_HEIGHT = 10;
         this.BULLET_SPEED = 10;
         this.draw = () => {
@@ -20,13 +20,15 @@ export default class Bullet {
             }
         };
         this.checkHeliHit = () => {
-            this.flightController.helis.forEach((heli, index) => {
+            this.flightController.helis.forEach((heli) => {
                 if (!heli.isExploding && this.bulletY > (heli.startY - 25) && this.bulletY < (heli.startY + 25)) {
                     let heliCollisionRange = [heli.startX, heli.startX + (2 * heli.collisionWidth)];
                     heliCollisionRange.sort((a, b) => a - b);
                     if (this.bulletX >= heliCollisionRange[0] && this.bulletX <= heliCollisionRange[1]) {
                         heli.isExploding = true;
                         this.isGone = true;
+                        // A heli is 10 points!
+                        this.score.add(10);
                     }
                 }
             });
@@ -38,9 +40,12 @@ export default class Bullet {
         this.canvas = canvas;
         this.turret = turret;
         this.flightController = flightController;
+        this.score = score;
         this.barrelPosition = barrelPosition;
         this.bulletX = this.canvas.width / 2 - this.BULLET_WIDTH_HEIGHT / 2;
-        this.bulletY = this.canvas.height - this.canvas.BASE_WIDTH_HEIGHT - this.turret.twh - this.BULLET_WIDTH_HEIGHT / 2;
+        this.bulletY = this.canvas.height - this.turret.BASE_WIDTH_HEIGHT - this.turret.twh - this.BULLET_WIDTH_HEIGHT - this.turret.SCORE_HEIGHT / 2;
         this.isGone = false;
+        // Every time we shoot, the score is subtracted by one.
+        this.score.subtract(1);
     }
 }

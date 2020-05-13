@@ -2,6 +2,7 @@ import Canvas from "./canvas.js";
 import Barrel from "./barrel.js";
 import Turret from "./turret.js";
 import FlightController from "./flight-controller.js";
+import Score from "./score.js";
 import FPS from "./fps.js";
 
 export default class Paratrooper {
@@ -12,6 +13,7 @@ export default class Paratrooper {
   turret: Turret;
   flightController: FlightController;
   barrel: Barrel;
+  score: Score;
   fps: FPS;
   lastUpdate: number;
   fpsInterval: number;
@@ -23,7 +25,8 @@ export default class Paratrooper {
     // Example: https://dev.to/azure/dependency-injection-in-javascript-101-2b1e
     this.turret = new Turret(this.canvas);
     this.flightController = new FlightController(this.canvas);
-    this.barrel = new Barrel(this.canvas, this.turret, this.flightController);
+    this.score = new Score(this.canvas);
+    this.barrel = new Barrel(this.canvas, this.turret, this.flightController, this.score);
 
     // This shows the FPS on screen.
     this.fps = new FPS(this.canvas);
@@ -48,6 +51,7 @@ export default class Paratrooper {
       this.barrel.draw();
       this.turret.draw();
       this.flightController.run();
+      this.score.run();
       this.fps.showFPS();
       this.lastUpdate = now - (elapsed % this.fpsInterval);
     }

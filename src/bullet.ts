@@ -1,6 +1,7 @@
 import Canvas from "./canvas.js";
 import Turret from "./turret.js";
 import FlightController from "./flight-controller.js";
+import Score from "./score.js";
 
 export default class Bullet {
 
@@ -10,19 +11,23 @@ export default class Bullet {
   canvas: Canvas;
   turret: Turret;
   flightController: FlightController;
+  score: Score;
   barrelPosition: number;
   bulletX: number;
   bulletY: number;
   isGone: boolean;
 
-  constructor(canvas: Canvas, turret: Turret, barrelPosition: number, flightController: FlightController) {
+  constructor(canvas: Canvas, turret: Turret, barrelPosition: number, flightController: FlightController, score: Score) {
     this.canvas = canvas;
     this.turret = turret;
     this.flightController = flightController;
+    this.score = score;
     this.barrelPosition = barrelPosition;
     this.bulletX = this.canvas.width / 2 - this.BULLET_WIDTH_HEIGHT / 2;
-    this.bulletY = this.canvas.height - this.canvas.BASE_WIDTH_HEIGHT - this.turret.twh - this.BULLET_WIDTH_HEIGHT / 2;
+    this.bulletY = this.canvas.height - this.turret.BASE_WIDTH_HEIGHT - this.turret.twh - this.BULLET_WIDTH_HEIGHT - this.turret.SCORE_HEIGHT / 2;
     this.isGone = false;
+    // Every time we shoot, the score is subtracted by one.
+    this.score.subtract(1);
   }
 
   draw = () => {
@@ -48,13 +53,15 @@ export default class Bullet {
   }
 
   checkHeliHit = () => {
-    this.flightController.helis.forEach((heli, index) => {
+    this.flightController.helis.forEach((heli) => {
       if (!heli.isExploding && this.bulletY > (heli.startY - 25) && this.bulletY < (heli.startY + 25)) {
         let heliCollisionRange = [heli.startX, heli.startX + (2 * heli.collisionWidth)];
         heliCollisionRange.sort((a, b) => a - b);
         if (this.bulletX >= heliCollisionRange[0] && this.bulletX <= heliCollisionRange[1]) {
           heli.isExploding = true;
           this.isGone = true;
+          // A heli is 10 points!
+          this.score.add(10);
         }
       }
     });

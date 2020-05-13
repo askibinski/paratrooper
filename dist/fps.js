@@ -9,10 +9,10 @@ export default class FPS {
                 this.lastUpdate = performance.now();
             }
             this.canvas.ctx.fillStyle = this.canvas.WHITE;
-            this.canvas.ctx.font = "48px sans-serif";
-            this.canvas.ctx.textAlign = "left";
+            this.canvas.ctx.font = "48px Courier";
+            this.canvas.ctx.textAlign = "right";
             this.canvas.ctx.textBaseline = "top";
-            this.canvas.ctx.fillText(this.fps, 1500, 1100);
+            this.canvas.ctx.fillText(`FPS:${this.fps}`, this.canvas.width - 10, this.canvas.height - 60);
         };
         this.canvas = canvas;
         this.lastUpdate = performance.now();
