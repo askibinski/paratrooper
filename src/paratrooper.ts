@@ -8,6 +8,14 @@ export default class Paratrooper {
 
   MAX_FPS = 60;
 
+  canvas: Canvas;
+  turret: Turret;
+  flightController: FlightController;
+  barrel: Barrel;
+  fps: FPS;
+  lastUpdate: number;
+  fpsInterval: number;
+
   constructor() {
     this.canvas = new Canvas;
     // Simple dependency injection will do for now.
@@ -16,7 +24,7 @@ export default class Paratrooper {
     this.turret = new Turret(this.canvas);
     this.flightController = new FlightController(this.canvas);
     this.barrel = new Barrel(this.canvas, this.turret, this.flightController);
-    
+
     // This shows the FPS on screen.
     this.fps = new FPS(this.canvas);
 
@@ -46,7 +54,7 @@ export default class Paratrooper {
 
     window.requestAnimationFrame(this.drawLoop);
   }
-  
+
 }
 
 new Paratrooper;

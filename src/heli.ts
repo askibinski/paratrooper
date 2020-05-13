@@ -1,3 +1,5 @@
+import Canvas from "./canvas.js";
+
 export default class Heli {
 
   SCALE = 0.36;
@@ -7,9 +9,25 @@ export default class Heli {
   HELI_START_CANVAS_OFFSET = 100;
   HELI_TAIL_LENGTH = 180;
 
+  canvas: Canvas;
+  heli: Heli;
+  heliDirection: number;
+  startX: number;
+  startY: number;
+  rotorBladeLength: number;
+  rotorBladeDirection: number;
+  tailRotation: number;
+  collisionWidth: number;
+  isExploding: boolean;
+  frame: number;
+  frameSinceExplosion: number;
+  isGone: boolean;
+  multipliers: number[];
+  explodeRotateDirections: number[];
+
   // If you look at the original game, I think helis from the right always
   // fly above the helis from the left (they never use the same height).
-  constructor(canvas, direction, height) {
+  constructor(canvas: Canvas, direction: number, height: number) {
     this.canvas = canvas;
     this.heliDirection = direction;
     this.startX = direction === -1 ? -this.HELI_START_CANVAS_OFFSET : this.canvas.width + this.HELI_START_CANVAS_OFFSET;
@@ -28,14 +46,14 @@ export default class Heli {
     // of the falling parts in a random way.
     // The length of these arrays corresponds to the number of items!
     this.multipliers = [0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3];
-    this.explodeRotateDirections = [-1, -1, -1, -1, -1 -1, 1, 1, 1, 1, 1, 1];
+    this.explodeRotateDirections = [-1, -1, -1, -1, -1 - 1, 1, 1, 1, 1, 1, 1];
     this.multipliers = this.canvas.shuffle(this.multipliers);
     this.explodeRotateDirections = this.canvas.shuffle(this.explodeRotateDirections);
   }
 
   // A wrapper around every item part which needs to be drawn, containing logic
   // for the explosion.
-  drawItem = (name, i) => {
+  drawItem = (name: string, i: number) => {
     let x = !this.isExploding ? this.startX : this.startX + this.heliDirection * (this.HELI_SPEED * this.multipliers[i]);
     let y = !this.isExploding ? this.startY : this.startY + (this.frameSinceExplosion * this.frameSinceExplosion * this.multipliers[i]);
 
@@ -43,7 +61,7 @@ export default class Heli {
 
     if (this.isExploding) {
       this.canvas.ctx.save();
-      this.canvas.ctx.translate(centerX,  centerY);
+      this.canvas.ctx.translate(centerX, centerY);
       this.canvas.ctx.rotate(this.explodeRotateDirections[i] * this.tailRotation / 2 * Math.PI);
       this.canvas.ctx.translate(-centerX, -centerY);
     }
@@ -56,7 +74,7 @@ export default class Heli {
   }
 
   // The core part of drawing an item part.
-  drawItemPart = (name, x, y, centerX, centerY) => {
+  drawItemPart = (name: string, x: number, y: number, centerX: number, centerY: number) => {
     switch (name) {
       case 'tail-long':
         this.canvas.ctx.strokeStyle = this.canvas.WHITE;
@@ -187,76 +205,76 @@ export default class Heli {
   }
 
   // Used for the translate back and forth in case of exploding.
-  getItemPartCenter = (name, x, y) => {
+  getItemPartCenter = (name: string, x: number, y: number) => {
     switch (name) {
       case 'tail-long':
-        return { 
+        return {
           centerX: x + (this.SCALE * (150 + (this.HELI_TAIL_LENGTH / 2))),
           centerY: y - (this.SCALE * 15),
         }
         break;
       case 'tail-short':
-        return { 
+        return {
           centerX: x + (this.SCALE * 210),
           centerY: y,
         }
         break;
       case 'heli-body':
-        return { 
+        return {
           centerX: x + (this.SCALE * 100),
           centerY: y,
         }
         break;
       case 'heli-body-stroke':
-        return { 
+        return {
           centerX: x + (this.SCALE * 100),
           centerY: y,
         }
         break;
       case 'heli-body-window':
-        return { 
+        return {
           centerX: x + (this.SCALE * 62.5),
           centerY: y - (this.SCALE * 25),
         }
         break;
       case 'rotor-connection':
-        return { 
+        return {
           centerX: x + (this.SCALE * 100),
           centerY: y - (this.SCALE * 65),
         }
         break;
       case 'top-rotor-left':
-        return { 
+        return {
           centerX: x + (this.SCALE * 100),
           centerY: y - (this.SCALE * 80),
         }
         break;
       case 'top-rotor-right':
-        return { 
+        return {
           centerX: x + (this.SCALE * 100),
           centerY: y - (this.SCALE * 80),
         }
         break;
       case 'landing-gear-left':
-        return { 
+        return {
           centerX: x + (this.SCALE * 50),
           centerY: y + (this.SCALE * 67.5),
         }
         break;
       case 'landing-gear-right':
-        return { 
+        return {
           centerX: x + (this.SCALE * 150),
           centerY: y + (this.SCALE * 76.5),
         }
         break;
       case 'landing-gear-bar':
-        return { 
+        return {
           centerX: x + (this.SCALE * 105),
           centerY: y + (this.SCALE * 85),
         }
         break;
       case 'tail-rotor':
-        return { 
+        return {
           centerX: x + (this.SCALE * 330),
           centerY: y - (this.SCALE * 15),
         }
@@ -272,7 +290,7 @@ export default class Heli {
     // numbers) otherwise the animation is too fast.
     if (this.isExploding && this.frame % 2 == 0) {
       this.frameSinceExplosion++;
-    } 
+    }
 
     // Mirror the heli around the y-axis (for helis coming from the left).
     this.canvas.ctx.save();

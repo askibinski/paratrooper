@@ -17,6 +17,6 @@ export default class FPS {
         this.canvas = canvas;
         this.lastUpdate = performance.now();
         this.frameCounter = 0;
-        this.fps = 0;
+        this.fps = '';
     }
 }

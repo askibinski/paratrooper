@@ -1,15 +1,27 @@
+import Canvas from "./canvas.js";
+import Turret from "./turret.js";
+import FlightController from "./flight-controller.js";
+
 export default class Bullet {
 
   BULLET_WIDTH_HEIGHT = 10;
   BULLET_SPEED = 10;
 
-  constructor(canvas, turret, barrelPosition, flightController) {
+  canvas: Canvas;
+  turret: Turret;
+  flightController: FlightController;
+  barrelPosition: number;
+  bulletX: number;
+  bulletY: number;
+  isGone: boolean;
+
+  constructor(canvas: Canvas, turret: Turret, barrelPosition: number, flightController: FlightController) {
     this.canvas = canvas;
     this.turret = turret;
     this.flightController = flightController;
     this.barrelPosition = barrelPosition;
-    this.bulletX = this.canvas.width/2 - this.BULLET_WIDTH_HEIGHT/2;
-    this.bulletY = this.canvas.height - this.canvas.BASE_WIDTH_HEIGHT - this.turret.twh - this.BULLET_WIDTH_HEIGHT/2;
+    this.bulletX = this.canvas.width / 2 - this.BULLET_WIDTH_HEIGHT / 2;
+    this.bulletY = this.canvas.height - this.canvas.BASE_WIDTH_HEIGHT - this.turret.twh - this.BULLET_WIDTH_HEIGHT / 2;
     this.isGone = false;
   }
 
@@ -18,7 +30,7 @@ export default class Bullet {
     this.canvas.ctx.beginPath();
     this.canvas.ctx.rect(this.bulletX, this.bulletY, this.BULLET_WIDTH_HEIGHT, this.BULLET_WIDTH_HEIGHT);
     this.canvas.ctx.fill();
-    
+
     // Yay for maths!
     this.bulletX = this.bulletX + this.BULLET_SPEED * Math.sin(this.barrelPosition * Math.PI);
     this.bulletY = this.bulletY - this.BULLET_SPEED * Math.cos(this.barrelPosition * Math.PI);
