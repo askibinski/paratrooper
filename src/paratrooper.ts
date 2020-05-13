@@ -49,8 +49,8 @@ export default class Paratrooper {
       this.canvas.clear();
       this.canvas.setup();
       this.barrel.draw();
-      this.turret.draw();
       this.flightController.run();
+      this.turret.draw();
       this.score.run();
       this.fps.showFPS();
       this.lastUpdate = now - (elapsed % this.fpsInterval);

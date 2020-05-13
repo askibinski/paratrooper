@@ -22,6 +22,10 @@ export default class Turret {
   }
 
   floor = () => {
+    this.canvas.ctx.fillStyle = this.canvas.BLACK;
+    this.canvas.ctx.beginPath();
+    this.canvas.ctx.rect(0, (this.canvas.height - this.SCORE_HEIGHT), this.canvas.width, this.SCORE_HEIGHT);
+    this.canvas.ctx.fill();
     this.canvas.ctx.strokeStyle = this.canvas.BLUE;
     this.canvas.ctx.lineWidth = 3;
     this.canvas.ctx.beginPath();
