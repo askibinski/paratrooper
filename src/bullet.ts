@@ -24,7 +24,7 @@ export default class Bullet {
     this.score = score;
     this.barrelPosition = barrelPosition;
     this.bulletX = this.canvas.width / 2 - this.BULLET_WIDTH_HEIGHT / 2;
-    this.bulletY = this.canvas.height - this.turret.BASE_WIDTH_HEIGHT - this.turret.twh - this.BULLET_WIDTH_HEIGHT - this.turret.SCORE_HEIGHT / 2;
+    this.bulletY = this.canvas.height - this.turret.BASE_WIDTH_HEIGHT - this.turret.twh - (this.BULLET_WIDTH_HEIGHT / 2) - this.turret.SCORE_HEIGHT;
     this.isGone = false;
     // Every time we shoot, the score is subtracted by one.
     this.score.subtract(1);
