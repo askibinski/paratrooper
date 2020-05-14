@@ -1,4 +1,5 @@
 import Canvas from "./canvas.js";
+import TrooperController from "./trooper-controller.js";
 
 export default class Heli {
 
@@ -9,9 +10,9 @@ export default class Heli {
   HELI_START_CANVAS_OFFSET = 100;
   HELI_TAIL_LENGTH = 180;
 
-  canvas: Canvas;
   heli: Heli;
   heliDirection: number;
+  paratrooper: boolean;
   startX: number;
   startY: number;
   rotorBladeLength: number;
@@ -27,9 +28,9 @@ export default class Heli {
 
   // If you look at the original game, I think helis from the right always
   // fly above the helis from the left (they never use the same height).
-  constructor(canvas: Canvas, direction: number, height: number) {
-    this.canvas = canvas;
+  constructor(readonly canvas: Canvas, protected trooperController: TrooperController, direction: number, height: number) {
     this.heliDirection = direction;
+    this.paratrooper = false;
     this.startX = direction === -1 ? -this.HELI_START_CANVAS_OFFSET : this.canvas.width + this.HELI_START_CANVAS_OFFSET;
     this.startY = height;
     this.rotorBladeLength = 0;
@@ -54,6 +55,7 @@ export default class Heli {
   // A wrapper around every item part which needs to be drawn, containing logic
   // for the explosion.
   drawItem = (name: string, i: number) => {
+
     let x = !this.isExploding ? this.startX : this.startX + this.heliDirection * (this.HELI_SPEED * this.multipliers[i]);
     let y = !this.isExploding ? this.startY : this.startY + (this.frameSinceExplosion * this.frameSinceExplosion * this.multipliers[i]);
 
@@ -71,6 +73,7 @@ export default class Heli {
     if (this.isExploding) {
       this.canvas.ctx.restore();
     }
+
   }
 
   // The core part of drawing an item part.
@@ -284,6 +287,13 @@ export default class Heli {
 
   draw = () => {
     this.frame++;
+
+    // Each frame, there is a 0,05% chance a trooper will jump.
+    if (!this.paratrooper && this.canvas.getRndInteger(1, 100) === 1) {
+      this.trooperController.createTrooper(this.startX, this.startY);
+      this.paratrooper = true;
+      console.log('jump!');
+    }
 
     // This is a trick to use the frames since explosion for altering the
     // positions of the exploding parts. We only use half the frames (even

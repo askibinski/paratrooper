@@ -1,7 +1,9 @@
 export default class Heli {
     // If you look at the original game, I think helis from the right always
     // fly above the helis from the left (they never use the same height).
-    constructor(canvas, direction, height) {
+    constructor(canvas, trooperController, direction, height) {
+        this.canvas = canvas;
+        this.trooperController = trooperController;
         this.SCALE = 0.36;
         this.ROTOR_BLADE_MAX_LENGTH = 130;
         this.ROTOR_SPEED = 20;
@@ -234,6 +236,12 @@ export default class Heli {
         };
         this.draw = () => {
             this.frame++;
+            // Each frame, there is a 0,05% chance a trooper will jump.
+            if (!this.paratrooper && this.canvas.getRndInteger(1, 100) === 1) {
+                this.trooperController.createTrooper(this.startX, this.startY);
+                this.paratrooper = true;
+                console.log('jump!');
+            }
             // This is a trick to use the frames since explosion for altering the
             // positions of the exploding parts. We only use half the frames (even
             // numbers) otherwise the animation is too fast.
@@ -284,8 +292,8 @@ export default class Heli {
         this.wentOffCanvas = () => {
             return ((this.startX > (this.canvas.width + this.HELI_START_CANVAS_OFFSET)) || (this.startX < (-this.HELI_START_CANVAS_OFFSET)));
         };
-        this.canvas = canvas;
         this.heliDirection = direction;
+        this.paratrooper = false;
         this.startX = direction === -1 ? -this.HELI_START_CANVAS_OFFSET : this.canvas.width + this.HELI_START_CANVAS_OFFSET;
         this.startY = height;
         this.rotorBladeLength = 0;

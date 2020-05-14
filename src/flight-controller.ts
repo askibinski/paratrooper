@@ -1,18 +1,18 @@
 import Heli from "./heli.js";
 import Canvas from "./canvas.js";
+import Game from "./index.js";
+import TrooperController from "./trooper-controller.js";
 
 export default class FlightController {
 
   HELI_HEIGHT_HIGH = 100;
   HELI_HEIGHT_LOW = 200;
 
-  canvas: Canvas;
   helis: Heli[];
   delay: object;
   maxHelis: number;
 
-  constructor(canvas: Canvas) {
-    this.canvas = canvas;
+  constructor(readonly canvas: Canvas, protected trooperController: TrooperController) {
     this.helis = [];
     this.delay = { '-1': 0, '1': 0 };
     this.maxHelis = 3;
@@ -33,7 +33,7 @@ export default class FlightController {
       // 0,5% change each run to create a chopper.
       if (this.canvas.getRndInteger(1, 1000) <= 15) {
         let height = toggle === -1 ? this.HELI_HEIGHT_LOW : this.HELI_HEIGHT_HIGH;
-        this.helis.push(new Heli(this.canvas, toggle * 1, height));
+        this.helis.push(new Heli(this.canvas, this.trooperController, toggle * 1, height));
 
         // Create a delay so we don't immediately create a new heli.
         this.delay[toggle] = 30;
