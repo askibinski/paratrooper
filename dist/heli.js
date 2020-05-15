@@ -231,7 +231,7 @@ export default class Heli {
         };
         this.draw = () => {
             this.frame++;
-            // Each frame, there is a 0,05% chance a trooper will jump.
+            // Each frame, there is a 1% chance a trooper will jump.
             if (!this.paratrooper && this.canvas.getRndInteger(1, 100) === 1) {
                 this.trooperController.createTrooper(this.startX, this.startY);
                 this.paratrooper = true;

@@ -6,13 +6,18 @@ export default class Paratrooper {
   static readonly CHUTE_LINE_WIDTH = 5;
   static readonly TROOPER_HEAD_SIZE = 12;
   static readonly JUMP_Y_OFFSET = 50;
+  static readonly FALL_SPEED = 1;
 
   isGone: boolean;
+  deployedChute: boolean;
+  hasChute: boolean;
   x: number;
   y: number;
 
   constructor(readonly canvas: Canvas) {
     this.isGone = false;
+    this.deployedChute = false;
+    this.hasChute = true;
     this.x = 0;
     this.y = 0;
   }
@@ -24,9 +29,27 @@ export default class Paratrooper {
   }
 
   run = (): void => {
-    this.parachute();
+
+    // Each framerun, there is a 2% chance a trooper will deploy his chute.
+    // The higher this is, the more likely a chute will be deployed, making
+    // it easier to shoot them down.
+    if (this.canvas.getRndInteger(1, 50) === 1) {
+      this.deployedChute = true;
+    }
+
     this.trooper();
-    this.y++;
+    if (this.deployedChute && this.hasChute) {
+      this.parachute();
+    }
+    let fallSpeed = Paratrooper.FALL_SPEED;
+    // Obviously, because of Newton, a trooper falls faster without a chute.
+    // There are 2 scenarios: he didn't deloy yet, or the poor bastard got
+    // his chute shot down (which by the way is not against the convention
+    // of Geneva apparantly: https://en.wikipedia.org/wiki/Attacks_on_parachutists
+    if ((this.hasChute && !this.deployedChute) || (!this.hasChute && this.deployedChute)) {
+      fallSpeed = 4 * Paratrooper.FALL_SPEED;
+    }
+    this.y = this.y + fallSpeed;
   }
 
   parachute = (): void => {
@@ -53,7 +76,6 @@ export default class Paratrooper {
     this.canvas.ctx.beginPath();
     this.canvas.ctx.arc(this.x, this.y + Paratrooper.JUMP_Y_OFFSET - (4 * Paratrooper.TROOPER_HEAD_SIZE), Paratrooper.CHUTE_RADIUS, 1 * Math.PI, 0);
     this.canvas.ctx.fill();
-
   }
 
   trooper = (): void => {
