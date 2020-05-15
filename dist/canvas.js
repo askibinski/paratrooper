@@ -1,16 +1,12 @@
 export default class Canvas {
     constructor() {
-        this.WHITE = "#ffffff";
-        this.PINK = '#fe52fc';
-        this.BLACK = '#000000';
-        this.BLUE = '#56faf7';
         // Clear the canvas.
         this.clear = () => {
             this.ctx.clearRect(0, 0, this.width, this.height);
         };
         // Background color canvas.
         this.setup = () => {
-            this.ctx.fillStyle = this.BLACK;
+            this.ctx.fillStyle = Canvas.BLACK;
             this.ctx.fillRect(0, 0, this.width, this.height);
         };
         // Select the elements on the page - canvas, reset button.
@@ -33,3 +29,7 @@ export default class Canvas {
         return a;
     }
 }
+Canvas.WHITE = "#ffffff";
+Canvas.PINK = '#fe52fc';
+Canvas.BLACK = '#000000';
+Canvas.BLUE = '#56faf7';

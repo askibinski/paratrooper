@@ -2,30 +2,26 @@ import Canvas from "./canvas.js";
 
 export default class Score {
 
-  canvas: Canvas;
   score: number;
 
-  constructor(canvas: Canvas) {
-
-    this.canvas = canvas;
+  constructor(readonly canvas: Canvas) {
     this.score = 0;
-
   }
 
-  add = (amount: number) => {
+  add = (amount: number): void => {
     this.score = this.score + amount;
   }
 
-  subtract = (amount: number) => {
+  subtract = (amount: number): void => {
     this.score = this.score - amount;
     if (this.score < 0) {
       this.score = 0;
     }
   }
 
-  run = () => {
+  run = (): void => {
     let score = <string><unknown>this.score;
-    this.canvas.ctx.fillStyle = this.canvas.WHITE;
+    this.canvas.ctx.fillStyle = Canvas.WHITE;
     this.canvas.ctx.font = "48px Courier";
     this.canvas.ctx.textAlign = "left"
     this.canvas.ctx.textBaseline = "top";

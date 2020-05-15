@@ -2,21 +2,17 @@ import Canvas from "./canvas.js";
 
 export default class FPS {
 
-  canvas: Canvas;
   lastUpdate: number;
   frameCounter: number;
   fps: string;
 
-  constructor(canvas: Canvas) {
-
-    this.canvas = canvas;
+  constructor(readonly canvas: Canvas) {
     this.lastUpdate = performance.now();
     this.frameCounter = 0;
     this.fps = '';
-
   }
 
-  showFPS = () => {
+  run = (): void => {
     // Probably a very inacurate FPS counter. We'll see.
     this.frameCounter++;
     if (performance.now() - this.lastUpdate >= 1000) {
@@ -25,7 +21,7 @@ export default class FPS {
       this.lastUpdate = performance.now();
     }
 
-    this.canvas.ctx.fillStyle = this.canvas.WHITE;
+    this.canvas.ctx.fillStyle = Canvas.WHITE;
     this.canvas.ctx.font = "48px Courier";
     this.canvas.ctx.textAlign = "right"
     this.canvas.ctx.textBaseline = "top";

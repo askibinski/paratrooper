@@ -1,3 +1,5 @@
+import Container from "./container.js";
+import Services from "./services.js";
 import Canvas from "./canvas.js";
 import Barrel from "./barrel.js";
 import Turret from "./turret.js";
@@ -8,7 +10,7 @@ import FPS from "./fps.js";
 
 export default class Game {
 
-  MAX_FPS = 60;
+  static readonly MAX_FPS = 60;
 
   canvas: Canvas;
   turret: Turret;
@@ -20,34 +22,26 @@ export default class Game {
   lastUpdate: number;
   fpsInterval: number;
 
-  constructor() {
-    this.canvas = new Canvas;
-    // Simple dependency injection will do for now.
-    // Might do proper DI later with a container or something.
-    // Example: https://dev.to/azure/dependency-injection-in-javascript-101-2b1e
-    // Ooh better!! http://nicholasjohnson.com/blog/how-angular2-di-works-with-typescript/
-    this.turret = new Turret(this.canvas);
-    this.trooperController = new TrooperController(this.canvas);
-    this.flightController = new FlightController(this.canvas, this.trooperController);
-    this.score = new Score(this.canvas);
-    this.barrel = new Barrel(this.canvas, this.turret, this.flightController, this.score);
+  constructor(readonly container: Container) {
+    this.canvas = container.get('canvas');
+    this.turret = container.get('turret');
+    this.trooperController = container.get('trooperController');
+    this.flightController = container.get('flightController');
+    this.score = container.get('score');
+    this.barrel = container.get('barrel');
 
     // This shows the FPS on screen.
-    this.fps = new FPS(this.canvas);
+    this.fps = container.get('fps');
 
     this.lastUpdate = performance.now();
-    this.fpsInterval = Math.round(1000 / this.MAX_FPS);
+    this.fpsInterval = Math.round(1000 / Game.MAX_FPS);
     window.requestAnimationFrame(this.drawLoop);
-  }
-
-  get getCanvas() {
-    return this.canvas;
   }
 
   // Draw all the things.
   // TODO: later on, we will probably just loop through all our objects 
   // and call the draw() function.
-  drawLoop = () => {
+  drawLoop = (): void => {
     let now = performance.now();
     let elapsed = now - this.lastUpdate;
     // We want to set a max FPS otherwise the game will run faster on 
@@ -61,7 +55,7 @@ export default class Game {
       this.trooperController.run();
       this.turret.draw();
       this.score.run();
-      this.fps.showFPS();
+      this.fps.run();
       this.lastUpdate = now - (elapsed % this.fpsInterval);
     }
 
@@ -70,4 +64,16 @@ export default class Game {
 
 }
 
-new Game;
+// Putting the game in the global namespace so we can access the
+// container from anywhere.
+declare global {
+  interface Window {
+    game: Game;
+  }
+}
+
+// Dependency injection with a simple services container 
+// inspired by: https://medium.com/@ismayilkhayredinov/building-a-scoped-ioc-container-for-node-express-8bf082d9887
+// @TODO Might look into the "typescript way" to do this: 
+// http://nicholasjohnson.com/blog/how-angular2-di-works-with-typescript/
+window.game = new Game(Services());
