@@ -19,9 +19,14 @@ export default class TrooperController {
     });
   }
 
+  // @TODO 1: we should round the x into the nearest 'grid'
+  // so they stack.
+  // @TODO 2: prevent on border and above turret
   createTrooper = (x: number, y: number) => {
     console.log(`create trooper at ${x}, ${y}.`);
-    this.troopers.push(new Paratrooper(this.canvas, x, y));
+    const trooper = window.game.container.get('paratrooper');
+    trooper.jumpCoordinates = { x: x, y: y };
+    this.troopers.push(trooper);
   }
 
 }
