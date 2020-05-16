@@ -1,6 +1,8 @@
 export default class TrooperController {
-    constructor(canvas) {
+    constructor(canvas, flightController, overlay) {
         this.canvas = canvas;
+        this.flightController = flightController;
+        this.overlay = overlay;
         this.run = () => {
             this.troopers.forEach((trooper, index) => {
                 if (trooper.isGone) {
@@ -21,7 +23,8 @@ export default class TrooperController {
             });
             if (this.troopersLandedLeft.length >= 4 || this.troopersLandedRight.length >= 4) {
                 console.log('GAME OVER');
-                // GAME OVER.
+                this.flightController.showNewHelis = false;
+                this.overlay.gameOverStatus = true;
             }
         };
         this.landed = (trooper) => {

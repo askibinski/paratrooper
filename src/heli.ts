@@ -15,6 +15,7 @@ export default class Heli {
   heli: Heli;
   direction: number;
   paratrooper: boolean;
+  dropParatrooper: boolean;
   startX: number;
   startY: number;
   rotorBladeLength: number;
@@ -32,6 +33,7 @@ export default class Heli {
   // fly above the helis from the left (they never use the same height).
   constructor(readonly canvas: Canvas, readonly trooperController: TrooperController) {
     this.paratrooper = false;
+    this.dropParatrooper = true;
     this.rotorBladeLength = 0;
     this.rotorBladeDirection = -1;
     this.tailRotation = 0;
@@ -56,13 +58,17 @@ export default class Heli {
     this.explodeRotateDirections = this.canvas.shuffle(this.explodeRotateDirections);
   }
 
-  public set toggle(direction: number) {
+  set dropNewTrooper(status: boolean) {
+    this.dropParatrooper = status;
+  }
+
+  set toggle(direction: number) {
     this.direction = direction;
     this.startX = (direction === -1) ? - Heli.HELI_START_CANVAS_OFFSET : this.canvas.width + Heli.HELI_START_CANVAS_OFFSET;
     this.collisionWidth = this.direction * Math.round(Heli.SCALE * Heli.HELI_TAIL_LENGTH);
   }
 
-  public set height(height: number) {
+  set height(height: number) {
     this.startY = height;
   }
 
@@ -304,7 +310,8 @@ export default class Heli {
 
     // Each framerun, there is a 1% chance a trooper will jump, but not near
     // the canvas border or above the turret.
-    if (this.startX > Heli.JUMP_MARGIN
+    if (this.dropParatrooper
+      && this.startX > Heli.JUMP_MARGIN
       && this.startX < (this.canvas.width)
       && (this.startX < ((this.canvas.width / 2) - (Turret.BASE_WIDTH_HEIGHT / 2)) || this.startX > ((this.canvas.width / 2) + (Turret.BASE_WIDTH_HEIGHT / 2) + Heli.JUMP_MARGIN))
       && !this.paratrooper && this.canvas.getRndInteger(1, 100) === 1

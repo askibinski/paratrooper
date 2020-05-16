@@ -4,6 +4,10 @@ export default class FlightController {
         this.helis = [];
         this.delay = { '-1': 0, '1': 0 };
         this.maxHelis = 3;
+        this.newHelis = true;
+    }
+    set showNewHelis(show) {
+        this.newHelis = show;
     }
     run() {
         for (let i in this.delay) {
@@ -11,17 +15,19 @@ export default class FlightController {
                 this.delay[i]--;
             }
         }
-        // 50% chance from which direction.
-        let toggle = !!this.canvas.getRndInteger(0, 2) ? -1 : 1;
-        if (this.helis.length < this.maxHelis && this.delay[toggle] === 0) {
-            // 0,5% change each run to create a chopper.
-            if (this.canvas.getRndInteger(1, 1000) <= 15) {
-                const heli = window.game.container.get('heli');
-                heli.height = (toggle === -1) ? FlightController.HELI_HEIGHT_LOW : FlightController.HELI_HEIGHT_HIGH;
-                heli.toggle = toggle;
-                this.helis.push(heli);
-                // Create a delay so we don't immediately create a new heli.
-                this.delay[toggle] = 30;
+        if (this.newHelis) {
+            // 50% chance from which direction.
+            let toggle = !!this.canvas.getRndInteger(0, 2) ? -1 : 1;
+            if (this.helis.length < this.maxHelis && this.delay[toggle] === 0) {
+                // 0,5% change each run to create a chopper.
+                if (this.canvas.getRndInteger(1, 1000) <= 15) {
+                    const heli = window.game.container.get('heli');
+                    heli.height = (toggle === -1) ? FlightController.HELI_HEIGHT_LOW : FlightController.HELI_HEIGHT_HIGH;
+                    heli.toggle = toggle;
+                    this.helis.push(heli);
+                    // Create a delay so we don't immediately create a new heli.
+                    this.delay[toggle] = 30;
+                }
             }
         }
         this.helis.forEach((heli, index) => {

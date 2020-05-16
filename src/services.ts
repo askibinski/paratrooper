@@ -9,6 +9,7 @@ import Score from "./score.js";
 import FPS from "./fps.js";
 import Heli from "./heli.js";
 import Paratrooper from "./paratrooper.js";
+import Overlay from "./overlay.js";
 
 export default () => {
 
@@ -17,10 +18,11 @@ export default () => {
   container.singleton('canvas', Canvas, []);
   container.singleton('turret', Turret, ['canvas']);
   container.singleton('flightController', FlightController, ['canvas']);
-  container.singleton('trooperController', TrooperController, ['canvas']);
+  container.singleton('trooperController', TrooperController, ['canvas', 'flightController', 'overlay']);
   container.singleton('score', Score, ['canvas']);
   container.singleton('barrel', Barrel, ['canvas', 'turret', 'flightController']);
   container.singleton('fps', FPS, ['canvas']);
+  container.singleton('overlay', Overlay, ['canvas']);
   container.register('bullet', Bullet, ['canvas', 'turret', 'flightController', 'trooperController', 'score']);
   container.register('heli', Heli, ['canvas', 'trooperController']);
   container.register('paratrooper', Paratrooper, ['canvas', 'trooperController', 'score']);

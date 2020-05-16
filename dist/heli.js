@@ -234,7 +234,8 @@ export default class Heli {
             this.frame++;
             // Each framerun, there is a 1% chance a trooper will jump, but not near
             // the canvas border or above the turret.
-            if (this.startX > Heli.JUMP_MARGIN
+            if (this.dropParatrooper
+                && this.startX > Heli.JUMP_MARGIN
                 && this.startX < (this.canvas.width)
                 && (this.startX < ((this.canvas.width / 2) - (Turret.BASE_WIDTH_HEIGHT / 2)) || this.startX > ((this.canvas.width / 2) + (Turret.BASE_WIDTH_HEIGHT / 2) + Heli.JUMP_MARGIN))
                 && !this.paratrooper && this.canvas.getRndInteger(1, 100) === 1) {
@@ -292,6 +293,7 @@ export default class Heli {
             return ((this.startX > (this.canvas.width + Heli.HELI_START_CANVAS_OFFSET)) || (this.startX < (-Heli.HELI_START_CANVAS_OFFSET)));
         };
         this.paratrooper = false;
+        this.dropParatrooper = true;
         this.rotorBladeLength = 0;
         this.rotorBladeDirection = -1;
         this.tailRotation = 0;
@@ -311,6 +313,9 @@ export default class Heli {
         this.explodeRotateDirections = [-1, -1, -1, -1, -1 - 1, 1, 1, 1, 1, 1, 1];
         this.multipliers = this.canvas.shuffle(this.multipliers);
         this.explodeRotateDirections = this.canvas.shuffle(this.explodeRotateDirections);
+    }
+    set dropNewTrooper(status) {
+        this.dropParatrooper = status;
     }
     set toggle(direction) {
         this.direction = direction;

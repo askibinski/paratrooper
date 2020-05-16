@@ -20,6 +20,7 @@ export default class Game {
                 this.turret.draw();
                 this.score.run();
                 this.fps.run();
+                this.overlay.run();
                 this.lastUpdate = now - (elapsed % this.fpsInterval);
             }
             window.requestAnimationFrame(this.drawLoop);
@@ -30,6 +31,7 @@ export default class Game {
         this.flightController = container.get('flightController');
         this.score = container.get('score');
         this.barrel = container.get('barrel');
+        this.overlay = container.get('overlay');
         // This shows the FPS on screen.
         this.fps = container.get('fps');
         this.lastUpdate = performance.now();

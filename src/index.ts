@@ -7,6 +7,7 @@ import FlightController from "./flight-controller.js";
 import TrooperController from "./trooper-controller.js";
 import Score from "./score.js";
 import FPS from "./fps.js";
+import Overlay from "./overlay.js";
 
 export default class Game {
 
@@ -19,6 +20,7 @@ export default class Game {
   barrel: Barrel;
   score: Score;
   fps: FPS;
+  overlay: Overlay;
   lastUpdate: number;
   fpsInterval: number;
 
@@ -29,6 +31,7 @@ export default class Game {
     this.flightController = container.get('flightController');
     this.score = container.get('score');
     this.barrel = container.get('barrel');
+    this.overlay = container.get('overlay');
 
     // This shows the FPS on screen.
     this.fps = container.get('fps');
@@ -56,6 +59,7 @@ export default class Game {
       this.turret.draw();
       this.score.run();
       this.fps.run();
+      this.overlay.run();
       this.lastUpdate = now - (elapsed % this.fpsInterval);
     }
 
