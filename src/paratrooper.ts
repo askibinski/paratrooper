@@ -1,5 +1,6 @@
 import Canvas from "./canvas.js";
 import Turret from "./turret.js";
+import TrooperController from "./trooper-controller.js";
 
 export default class Paratrooper {
 
@@ -12,21 +13,30 @@ export default class Paratrooper {
   isGone: boolean;
   deployedChute: boolean;
   hasChute: boolean;
+  hasLanded: boolean;
+  trooperNumberX: number;
   x: number;
   y: number;
 
-  constructor(readonly canvas: Canvas) {
+  constructor(readonly canvas: Canvas, readonly trooperController: TrooperController) {
     this.isGone = false;
     this.deployedChute = false;
     this.hasChute = true;
+    this.hasLanded = false;
     this.x = 0;
     this.y = 0;
+    this.trooperNumberX = 1;
   }
 
   set jumpCoordinates(coordinates: { x: number, y: number }) {
     const { x, y } = coordinates;
     this.x = x;
     this.y = y;
+    this.trooperController.troopers.forEach((trooper) => {
+      if (trooper.x == this.x) {
+        this.trooperNumberX++;
+      }
+    });
   }
 
   run = (): void => {
@@ -52,11 +62,23 @@ export default class Paratrooper {
     }
 
     // @TODO they should land on each other!
-    if (this.y < this.canvas.height - Turret.SCORE_HEIGHT - (8 * Paratrooper.TROOPER_HEAD_SIZE)) {
+    if (this.y < this.canvas.height - Turret.SCORE_HEIGHT - (4 * Paratrooper.TROOPER_HEAD_SIZE) - (this.trooperNumberX * (4 * Paratrooper.TROOPER_HEAD_SIZE))) {
       this.y = this.y + fallSpeed;
     }
     else {
-      this.hasChute = false;
+      // Hitting the ground. Again we gave 2 options:
+      if (this.hasChute || this.hasLanded) {
+        // Phew. Safely landed.
+        this.hasChute = false;
+        this.hasLanded = true;
+      }
+      else {
+        // Oops...Let 'm sink into to the ground.
+        this.y = this.y + fallSpeed;
+        if (this.y > this.canvas.height - Turret.SCORE_HEIGHT - (4 * Paratrooper.TROOPER_HEAD_SIZE)) {
+          this.isGone = true;
+        }
+      }
     }
   }
 

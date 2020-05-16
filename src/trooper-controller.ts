@@ -19,8 +19,9 @@ export default class TrooperController {
     });
   }
 
-  // @TODO 1: we should round the x into the nearest 'grid'
-  // so they stack.
+  // We round the x to the nearest "grid" of 50, so we can actually
+  // stack troopers (and the can be killed by shooting a trooper's
+  // chute and letting him fall on another guy which already landed.
   createTrooper = (x: number, y: number) => {
     const gridFactor = Math.floor(x / 50);
     const trooper = window.game.container.get('paratrooper');

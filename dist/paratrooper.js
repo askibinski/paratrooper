@@ -1,8 +1,9 @@
 import Canvas from "./canvas.js";
 import Turret from "./turret.js";
 export default class Paratrooper {
-    constructor(canvas) {
+    constructor(canvas, trooperController) {
         this.canvas = canvas;
+        this.trooperController = trooperController;
         this.run = () => {
             // Each framerun, there is a 2% chance a trooper will deploy his chute.
             // The higher this is, the more likely a chute will be deployed, making
@@ -23,11 +24,23 @@ export default class Paratrooper {
                 fallSpeed = 4 * Paratrooper.FALL_SPEED;
             }
             // @TODO they should land on each other!
-            if (this.y < this.canvas.height - Turret.SCORE_HEIGHT - (8 * Paratrooper.TROOPER_HEAD_SIZE)) {
+            if (this.y < this.canvas.height - Turret.SCORE_HEIGHT - (4 * Paratrooper.TROOPER_HEAD_SIZE) - (this.trooperNumberX * (4 * Paratrooper.TROOPER_HEAD_SIZE))) {
                 this.y = this.y + fallSpeed;
             }
             else {
-                this.hasChute = false;
+                // Hitting the ground. Again we gave 2 options:
+                if (this.hasChute || this.hasLanded) {
+                    // Phew. Safely landed.
+                    this.hasChute = false;
+                    this.hasLanded = true;
+                }
+                else {
+                    // Oops...Let 'm sink into to the ground.
+                    this.y = this.y + fallSpeed;
+                    if (this.y > this.canvas.height - Turret.SCORE_HEIGHT - (4 * Paratrooper.TROOPER_HEAD_SIZE)) {
+                        this.isGone = true;
+                    }
+                }
             }
         };
         this.parachute = () => {
@@ -88,13 +101,20 @@ export default class Paratrooper {
         this.isGone = false;
         this.deployedChute = false;
         this.hasChute = true;
+        this.hasLanded = false;
         this.x = 0;
         this.y = 0;
+        this.trooperNumberX = 1;
     }
     set jumpCoordinates(coordinates) {
         const { x, y } = coordinates;
         this.x = x;
         this.y = y;
+        this.trooperController.troopers.forEach((trooper) => {
+            if (trooper.x == this.x) {
+                this.trooperNumberX++;
+            }
+        });
     }
 }
 Paratrooper.CHUTE_RADIUS = 30;

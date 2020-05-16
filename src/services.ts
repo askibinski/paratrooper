@@ -23,7 +23,7 @@ export default () => {
   container.singleton('fps', FPS, ['canvas']);
   container.register('bullet', Bullet, ['canvas', 'turret', 'flightController', 'score']);
   container.register('heli', Heli, ['canvas', 'trooperController']);
-  container.register('paratrooper', Paratrooper, ['canvas']);
+  container.register('paratrooper', Paratrooper, ['canvas', 'trooperController']);
 
   return <Container>container;
 
