@@ -12,57 +12,13 @@
   <div class="canvasWrap">
     <canvas width="1600" height="1200" id="paratrooper"></canvas>
     <div class="buttons">
-      <button id="instructions">Instructions</button>
+      <button id="instructions">Pause / Instructions</button>
+      <a class="button" href="https://github.com/askibinski/paratrooper" target="_blank">Github</a>
     </div>
 
   </div>
   <script src="./dist/index.js" type="module"></script>
 
-  <style>
-    body {
-      min-height: 100vh;
-      display: grid;
-      align-items: center;
-      justify-items: center;
-      background: white;
-    }
-
-    canvas {
-      border: 1px solid black;
-      /* Set the width and height to half the actual size so it doesn't look pixelated */
-      width: 800px;
-      height: 600px;
-      background: white;
-    }
-
-    canvas.shake {
-      animation: shake 0.5s linear 1;
-    }
-
-    @keyframes shake {
-
-      10%,
-      90% {
-        transform: translate3d(-1px, 0, 0);
-      }
-
-      20%,
-      80% {
-        transform: translate3d(2px, 0, 0);
-      }
-
-      30%,
-      50%,
-      70% {
-        transform: translate3d(-4px, 0, 0);
-      }
-
-      40%,
-      60% {
-        transform: translate3d(4px, 0, 0);
-      }
-    }
-  </style>
 </body>
 
 </html>
