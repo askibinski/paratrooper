@@ -1,6 +1,7 @@
 import Canvas from "./canvas.js";
 import Turret from "./turret.js";
 import TrooperController from "./trooper-controller.js";
+import Score from "./score.js";
 
 export default class Paratrooper {
 
@@ -14,33 +15,35 @@ export default class Paratrooper {
   deployedChute: boolean;
   hasChute: boolean;
   hasLanded: boolean;
-  trooperNumberX: number;
+  readyForAction: boolean;
+  troopersLandedHere: Paratrooper[];
   x: number;
   y: number;
 
-  constructor(readonly canvas: Canvas, readonly trooperController: TrooperController) {
+  constructor(readonly canvas: Canvas, readonly trooperController: TrooperController, readonly score: Score) {
     this.isGone = false;
     this.deployedChute = false;
     this.hasChute = true;
     this.hasLanded = false;
+    this.readyForAction = false;
     this.x = 0;
     this.y = 0;
-    this.trooperNumberX = 1;
+    this.troopersLandedHere = [];
   }
 
   set jumpCoordinates(coordinates: { x: number, y: number }) {
     const { x, y } = coordinates;
     this.x = x;
     this.y = y;
+    // We need to stack troopers if they land on the same spot.
     this.trooperController.troopers.forEach((trooper) => {
       if (trooper.x == this.x) {
-        this.trooperNumberX++;
+        this.troopersLandedHere.push(trooper);
       }
     });
   }
 
   run = (): void => {
-
     // Each framerun, there is a 2% chance a trooper will deploy his chute.
     // The higher this is, the more likely a chute will be deployed, making
     // it easier to shoot them down.
@@ -61,8 +64,8 @@ export default class Paratrooper {
       fallSpeed = 4 * Paratrooper.FALL_SPEED;
     }
 
-    // @TODO they should land on each other!
-    if (this.y < this.canvas.height - Turret.SCORE_HEIGHT - (4 * Paratrooper.TROOPER_HEAD_SIZE) - (this.trooperNumberX * (4 * Paratrooper.TROOPER_HEAD_SIZE))) {
+    // They *can* stack!
+    if (this.y < this.canvas.height - Turret.SCORE_HEIGHT - (4 * Paratrooper.TROOPER_HEAD_SIZE) - ((this.troopersLandedHere.length + 1) * (4 * Paratrooper.TROOPER_HEAD_SIZE))) {
       this.y = this.y + fallSpeed;
     }
     else {
@@ -74,9 +77,17 @@ export default class Paratrooper {
       }
       else {
         // Oops...Let 'm sink into to the ground.
+        // @TODO death animation.
         this.y = this.y + fallSpeed;
         if (this.y > this.canvas.height - Turret.SCORE_HEIGHT - (4 * Paratrooper.TROOPER_HEAD_SIZE)) {
           this.isGone = true;
+          this.score.add(5);
+        }
+        // The fall will also kill any other troopers at this spot.
+        if (this.troopersLandedHere.length > 0) {
+          this.troopersLandedHere.forEach((trooper) => {
+            trooper.isGone = true;
+          });
         }
       }
     }

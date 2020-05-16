@@ -18,8 +18,8 @@ export default () => {
     container.singleton('score', Score, ['canvas']);
     container.singleton('barrel', Barrel, ['canvas', 'turret', 'flightController']);
     container.singleton('fps', FPS, ['canvas']);
-    container.register('bullet', Bullet, ['canvas', 'turret', 'flightController', 'score']);
+    container.register('bullet', Bullet, ['canvas', 'turret', 'flightController', 'trooperController', 'score']);
     container.register('heli', Heli, ['canvas', 'trooperController']);
-    container.register('paratrooper', Paratrooper, ['canvas', 'trooperController']);
+    container.register('paratrooper', Paratrooper, ['canvas', 'trooperController', 'score']);
     return container;
 };

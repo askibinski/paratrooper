@@ -1,6 +1,8 @@
 import Canvas from "./canvas.js";
 import Turret from "./turret.js";
 import FlightController from "./flight-controller.js";
+import TrooperController from "./trooper-controller.js";
+import Paratrooper from "./paratrooper.js";
 import Score from "./score.js";
 
 export default class Bullet {
@@ -13,7 +15,7 @@ export default class Bullet {
   bulletY: number;
   isGone: boolean;
 
-  constructor(readonly canvas: Canvas, readonly turret: Turret, readonly flightController: FlightController, readonly score: Score) {
+  constructor(readonly canvas: Canvas, readonly turret: Turret, readonly flightController: FlightController, readonly trooperController: TrooperController, readonly score: Score) {
     this.barrelPosition = 0;
     this.bulletX = this.canvas.width / 2 - Bullet.BULLET_WIDTH_HEIGHT / 2;
     this.bulletY = this.canvas.height - Turret.BASE_WIDTH_HEIGHT - this.turret.twh - (Bullet.BULLET_WIDTH_HEIGHT / 2) - Turret.SCORE_HEIGHT;
@@ -46,6 +48,11 @@ export default class Bullet {
       this.checkHeliHit();
     }
 
+    // Check if we are hitting any troopers.
+    if (this.trooperController.troopers.length > 0) {
+      this.checkTrooperHit();
+    }
+
   }
 
   checkHeliHit = (): void => {
@@ -58,6 +65,32 @@ export default class Bullet {
           this.isGone = true;
           // A heli is 10 points!
           this.score.add(10);
+        }
+      }
+    });
+  }
+
+  checkTrooperHit = (): void => {
+    this.trooperController.troopers.forEach((trooper) => {
+      // The trooper's body.
+      if (this.bulletY >= (trooper.y + (4 * Paratrooper.TROOPER_HEAD_SIZE))
+        && this.bulletY <= (trooper.y + (8 * Paratrooper.TROOPER_HEAD_SIZE))
+        && this.bulletX >= trooper.x - (2 * Paratrooper.TROOPER_HEAD_SIZE)
+        && this.bulletX <= trooper.x + (2 * Paratrooper.TROOPER_HEAD_SIZE)) {
+        trooper.isGone = true;
+        this.isGone = true;
+        this.score.add(5);
+      }
+      // The chute.
+      if (!trooper.isGone && trooper.hasChute && trooper.deployedChute
+        && this.bulletY >= (trooper.y - (4 * Paratrooper.TROOPER_HEAD_SIZE))
+        && this.bulletY <= (trooper.y + (4 * Paratrooper.TROOPER_HEAD_SIZE))) {
+        if (this.bulletX >= trooper.x - Paratrooper.CHUTE_RADIUS
+          && this.bulletX <= trooper.x + Paratrooper.CHUTE_RADIUS) {
+          trooper.hasChute = false;
+          this.isGone = true;
+          // A chute hit doesn't actually give you points. But the inevitable death
+          // of the trooper will.
         }
       }
     });

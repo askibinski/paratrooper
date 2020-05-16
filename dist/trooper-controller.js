@@ -1,6 +1,37 @@
 export default class TrooperController {
     constructor(canvas) {
         this.canvas = canvas;
+        this.run = () => {
+            this.troopers.forEach((trooper, index) => {
+                if (trooper.isGone) {
+                    this.troopers.splice(index, 1);
+                    return;
+                }
+                // If the paratrooper landed safely, mark him ready for
+                // action and sort him into the area.
+                if (trooper.hasLanded && !trooper.readyForAction) {
+                    this.landed(trooper);
+                    trooper.readyForAction = true;
+                    return;
+                }
+                trooper.run();
+                // console.log(this.troopers);
+                // console.log(this.troopersLandedLeft);
+                // console.log(this.troopersLandedRight);
+            });
+            if (this.troopersLandedLeft.length >= 4 || this.troopersLandedRight.length >= 4) {
+                console.log('GAME OVER');
+                // GAME OVER.
+            }
+        };
+        this.landed = (trooper) => {
+            if (trooper.x < this.canvas.width / 2) {
+                this.troopersLandedLeft.push(trooper);
+            }
+            if (trooper.x > this.canvas.width / 2) {
+                this.troopersLandedRight.push(trooper);
+            }
+        };
         // We round the x to the nearest "grid" of 50, so we can actually
         // stack troopers (and the can be killed by shooting a trooper's
         // chute and letting him fall on another guy which already landed.
@@ -11,14 +42,7 @@ export default class TrooperController {
             this.troopers.push(trooper);
         };
         this.troopers = [];
-    }
-    run() {
-        this.troopers.forEach((trooper, index) => {
-            if (trooper.isGone) {
-                this.troopers.splice(index, 1);
-                return;
-            }
-            trooper.run();
-        });
+        this.troopersLandedLeft = [];
+        this.troopersLandedRight = [];
     }
 }
