@@ -1,4 +1,5 @@
 import Canvas from "./canvas.js";
+import Turret from "./turret.js";
 export default class Heli {
     // If you look at the original game, I think helis from the right always
     // fly above the helis from the left (they never use the same height).
@@ -231,11 +232,14 @@ export default class Heli {
         };
         this.draw = () => {
             this.frame++;
-            // Each frame, there is a 1% chance a trooper will jump.
-            if (!this.paratrooper && this.canvas.getRndInteger(1, 100) === 1) {
+            // Each framerun, there is a 1% chance a trooper will jump, but not near
+            // the canvas border or above the turret.
+            if (this.startX > Heli.JUMP_MARGIN
+                && this.startX < (this.canvas.width)
+                && (this.startX < ((this.canvas.width / 2) - (Turret.BASE_WIDTH_HEIGHT / 2)) || this.startX > ((this.canvas.width / 2) + (Turret.BASE_WIDTH_HEIGHT / 2) + Heli.JUMP_MARGIN))
+                && !this.paratrooper && this.canvas.getRndInteger(1, 100) === 1) {
                 this.trooperController.createTrooper(this.startX, this.startY);
                 this.paratrooper = true;
-                console.log('jump!');
             }
             // This is a trick to use the frames since explosion for altering the
             // positions of the exploding parts. We only use half the frames (even
@@ -323,3 +327,4 @@ Heli.ROTOR_SPEED = 20;
 Heli.HELI_SPEED = 5;
 Heli.HELI_START_CANVAS_OFFSET = 100;
 Heli.HELI_TAIL_LENGTH = 180;
+Heli.JUMP_MARGIN = 50;

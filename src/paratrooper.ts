@@ -1,4 +1,5 @@
 import Canvas from "./canvas.js";
+import Turret from "./turret.js";
 
 export default class Paratrooper {
 
@@ -49,7 +50,14 @@ export default class Paratrooper {
     if ((this.hasChute && !this.deployedChute) || (!this.hasChute && this.deployedChute)) {
       fallSpeed = 4 * Paratrooper.FALL_SPEED;
     }
-    this.y = this.y + fallSpeed;
+
+    // @TODO they should land on each other!
+    if (this.y < this.canvas.height - Turret.SCORE_HEIGHT - (8 * Paratrooper.TROOPER_HEAD_SIZE)) {
+      this.y = this.y + fallSpeed;
+    }
+    else {
+      this.hasChute = false;
+    }
   }
 
   parachute = (): void => {
