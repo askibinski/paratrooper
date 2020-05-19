@@ -17,12 +17,8 @@ export default class TrooperController {
                     return;
                 }
                 trooper.run();
-                // console.log(this.troopers);
-                // console.log(this.troopersLandedLeft);
-                // console.log(this.troopersLandedRight);
             });
             if (this.troopersLandedLeft.length >= 4 || this.troopersLandedRight.length >= 4) {
-                console.log('GAME OVER');
                 this.flightController.showNewHelis = false;
                 this.overlay.gameOverStatus = true;
             }

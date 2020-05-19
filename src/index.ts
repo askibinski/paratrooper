@@ -9,6 +9,9 @@ import Score from "./score.js";
 import FPS from "./fps.js";
 import Overlay from "./overlay.js";
 
+// Firebase App (the core Firebase SDK) is always required and must be listed first.
+import * as firebase from "firebase";
+
 export default class Game {
 
   static readonly MAX_FPS = 60;
@@ -81,3 +84,48 @@ declare global {
 // @TODO Might look into the "typescript way" to do this: 
 // http://nicholasjohnson.com/blog/how-angular2-di-works-with-typescript/
 window.game = new Game(Services());
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyADcpqiJ-igwgFdDJsuArjjrUY179TfEv4",
+  authDomain: "paratrooper-leaderboard.firebaseapp.com",
+  databaseURL: "https://paratrooper-leaderboard.firebaseio.com",
+  projectId: "paratrooper-leaderboard",
+  storageBucket: "paratrooper-leaderboard.appspot.com",
+  messagingSenderId: "831739944011",
+  appId: "1:831739944011:web:61cc3f577e1e5d418601ce"
+};
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.firestore();
+
+// console.log(db);
+
+// Add a new document in collection "highscores"
+// db.collection("highscores").doc("score-2").set({
+//   name: "Karolien",
+//   score: 333
+// })
+//   .then(function () {
+//     console.log("Document successfully written!");
+//   })
+//   .catch(function (error) {
+//     console.error("Error writing document: ", error);
+//   });
+
+let citiesRef = db.collection('highscores');
+let query = citiesRef.orderBy('score', 'desc').limit(10).get()
+  .then(snapshot => {
+    if (snapshot.empty) {
+      console.log('No matching documents.');
+      return;
+    }
+
+    snapshot.forEach(doc => {
+      console.log(doc.id, '=>', doc.data());
+    });
+  })
+  .catch(err => {
+    console.log('Error getting documents', err);
+  });
