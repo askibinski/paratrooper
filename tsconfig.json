@@ -1,14 +1,21 @@
 {
   "compilerOptions": {
+    // "rootDir": "./src",
     "outDir": "./dist",
+    "declaration": true,
+    "declarationDir": "./dist",
     "allowJs": false,
     "target": "es6",
+    "module": "es6",
+    // "noImplicitAny": true,
     // "moduleResolution": "node",
     // "esModuleInterop": true,
-    // "module": "es6",
     // "allowSyntheticDefaultImports": true,
   },
   "include": [
     "./src/**/*"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }
