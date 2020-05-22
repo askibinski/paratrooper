@@ -1,0 +1,41 @@
+import Canvas from "./canvas.js";
+import TrooperController from "./trooper-controller.js";
+export default class Heli {
+    readonly canvas: Canvas;
+    readonly trooperController: TrooperController;
+    static readonly SCALE = 0.36;
+    static readonly ROTOR_BLADE_MAX_LENGTH = 130;
+    static readonly ROTOR_SPEED = 20;
+    static readonly HELI_SPEED = 5;
+    static readonly HELI_START_CANVAS_OFFSET = 100;
+    static readonly HELI_TAIL_LENGTH = 180;
+    static readonly JUMP_MARGIN = 50;
+    heli: Heli;
+    direction: number;
+    paratrooper: boolean;
+    dropParatrooper: boolean;
+    startX: number;
+    startY: number;
+    rotorBladeLength: number;
+    rotorBladeDirection: number;
+    tailRotation: number;
+    collisionWidth: number;
+    isExploding: boolean;
+    frame: number;
+    frameSinceExplosion: number;
+    isGone: boolean;
+    multipliers: number[];
+    explodeRotateDirections: number[];
+    constructor(canvas: Canvas, trooperController: TrooperController);
+    set dropNewTrooper(status: boolean);
+    set toggle(direction: number);
+    set height(height: number);
+    drawItem: (name: string, i: number) => void;
+    drawItemPart: (name: string, x: number, y: number, centerX: number, centerY: number) => void;
+    getItemPartCenter: (name: string, x: number, y: number) => {
+        centerX: number;
+        centerY: number;
+    };
+    draw: () => void;
+    wentOffCanvas: () => boolean;
+}
