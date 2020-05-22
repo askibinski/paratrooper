@@ -2,14 +2,10 @@
 
 /* Variables */
 html {
-  --grey: #e7e7e7;
+  --grey: #666666;
   --gray: var(--grey);
-  --blue: #0072B9;
+  --blue: #56faf7;
   --pink: #fe52fc;
-  --yellow: #ffc600;
-  --black: #2e2e2e;
-  --red: #c73737;
-  --green: #61e846;
   --text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
   --box-shadow: 0 0 5px 5px rgba(0,0,0,0.2);
   font-size: 62.5%;
@@ -67,22 +63,6 @@ canvas.shake {
   }
 }
 
-
-/* Table Styles */
-
-table {
-  border-radius: 5px;
-  overflow: hidden;
-  margin-bottom: 2rem;
-  border-collapse: collapse;
-}
-
-td, th {
-  border: 1px solid var(--grey);
-  padding: 0.5rem;
-}
-
-
 /* Helper Divs */
 
 .wrapper {
@@ -101,7 +81,7 @@ a {
 }
 
 
-a.button, button, input[type="button"] {
+a.button, button, input[type="button"], input[type="submit"] {
   color: white;
   background: var(--pink);
   padding: 1rem;
@@ -117,17 +97,19 @@ button:hover {
 }
 
 :focus {
-  outline-color: var(--pink);
+  box-shadow: 0 0 15px var(--blue);
 }
 
 fieldset {
   border: 1px solid black;
 }
 
-input:not([type="checkbox"]):not([type="radio"]), textarea, select {
-  display: block;
+input {
+  transition: all 0.30s ease-in-out;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]), textarea, select {
   padding: 1rem;
-  border: 1px solid var(--grey);
 }
 
 .success {
@@ -153,4 +135,57 @@ h6 {
 .wrapper h6 {
   color: var(--black);
   text-shadow: none;
+}
+
+.highscoreWrap {
+  position: relative;
+}
+
+.highscoreWrap form {
+  position: absolute;
+  top: 267px;
+  left: 0;
+  width: 100%;
+  text-align: center
+}
+
+.highscoreWrap form input {
+  display: inline-block;
+}
+
+.highscoreWrap table {
+  position: absolute;
+  width: 700px;
+  top: 50px;
+  left: 50px;
+  text-align: center;
+  color: #ffffff;
+}
+
+.highscoreWrap table {
+  position: absolute;
+  width: 700px;
+  top: 50px;
+  left: 50px;
+  text-align: center;
+  color: #ffffff;
+}
+
+.highscoreWrap table td:nth-child(2) {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Table Styles */
+
+table {
+  overflow: hidden;
+  border-collapse: collapse;
+}
+
+td, th {
+  border: 1px solid #ffffff;
+  padding: 0.5em;
 }

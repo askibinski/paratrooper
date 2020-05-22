@@ -16,8 +16,6 @@ export default class Canvas {
     this.ctx = canvas.getContext('2d');
     this.width = canvas.width;
     this.height = canvas.height;
-
-    document.querySelector('#instructions').addEventListener('click', () => { alert('Use arrow keys (left, right and up).') });
   }
 
   // Clear the canvas.

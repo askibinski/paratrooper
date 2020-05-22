@@ -311,6 +311,7 @@ export default class Heli {
     // Each framerun, there is a 1% chance a trooper will jump, but not near
     // the canvas border or above the turret.
     if (this.dropParatrooper
+      && !this.isExploding
       && this.startX > Heli.JUMP_MARGIN
       && this.startX < (this.canvas.width)
       && (this.startX < ((this.canvas.width / 2) - (Turret.BASE_WIDTH_HEIGHT / 2)) || this.startX > ((this.canvas.width / 2) + (Turret.BASE_WIDTH_HEIGHT / 2) + Heli.JUMP_MARGIN))
