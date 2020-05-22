@@ -3,8 +3,14 @@
   "version": "1.0.0",
   "description": "Greatest game of all time",
   "main": "./dist/index.js",
+  "module": "./dist/index.es.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "build": "rollup -c",
+    "watch": "rollup -cw"
   },
   "repository": {
     "type": "git",
@@ -20,11 +26,15 @@
   },
   "homepage": "https://github.com/askibinski/paratrooper#readme",
   "devDependencies": {
-    "typescript": "^3.8.3",
+    "@rollup/plugin-typescript": "^4.1.2",
     "eslint": "^7.0.0",
-    "prettier": "^2.0.5"
+    "prettier": "^2.0.5",
+    "rollup-plugin-typescript2": "^0.27.1",
+    "tslib": "^2.0.0",
+    "typescript": "^3.8.3"
   },
   "dependencies": {
+    "firebase": "^7.14.4",
     "uuid": "^8.0.0"
   }
 }
