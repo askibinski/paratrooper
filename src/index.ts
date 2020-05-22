@@ -9,6 +9,10 @@ import Score from "./score.js";
 import FPS from "./fps.js";
 import Overlay from "./overlay.js";
 
+// Firebase App (the core Firebase SDK) is always required and must be listed first
+import * as firebase from "firebase/app";
+import "firebase/firestore";
+
 export default class Game {
 
   static readonly MAX_FPS = 60;
