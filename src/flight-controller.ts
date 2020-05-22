@@ -5,25 +5,45 @@ export default class FlightController {
 
   static readonly HELI_HEIGHT_HIGH = 100;
   static readonly HELI_HEIGHT_LOW = 200;
+  static readonly MAX_HELIS_START = 3;
+  static readonly INCREASE_START_INTERVAL = 12;
 
   helis: Heli[];
   delay: object;
   maxHelis: number;
   newHelis: boolean;
+  totalHelis: number;
+  difficultyInterval: number;
 
   constructor(readonly canvas: Canvas) {
     this.helis = [];
     this.delay = { '-1': 0, '1': 0 };
-    this.maxHelis = 3;
+    this.maxHelis = FlightController.MAX_HELIS_START;
     this.newHelis = true;
+    this.totalHelis = 0;
+    this.difficultyInterval = FlightController.INCREASE_START_INTERVAL;
   }
 
   set showNewHelis(show: boolean) {
     this.newHelis = show;
   }
 
+  reset(): void {
+    this.helis = [];
+    this.maxHelis = FlightController.MAX_HELIS_START;
+    this.newHelis = true;
+    this.totalHelis = 0;
+  }
+
   run(): void {
 
+    // Every x choppers, increase the max number of choppers by one.
+    if (this.totalHelis === this.difficultyInterval) {
+      this.maxHelis++;
+      this.difficultyInterval = 2 * this.difficultyInterval;
+    }
+
+    // Count down delay timer.
     for (let i in this.delay) {
       if (this.delay[i] > 0) {
         this.delay[i]--;
@@ -41,6 +61,7 @@ export default class FlightController {
           heli.height = (toggle === -1) ? FlightController.HELI_HEIGHT_LOW : FlightController.HELI_HEIGHT_HIGH;
           heli.toggle = toggle;
           this.helis.push(heli);
+          this.totalHelis++;
 
           // Create a delay so we don't immediately create a new heli.
           this.delay[toggle] = 30;

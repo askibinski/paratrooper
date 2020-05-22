@@ -1,7 +1,6 @@
 import Canvas from "./canvas.js";
 import Paratrooper from "./paratrooper.js";
 import FlightController from "./flight-controller.js";
-import Overlay from "./overlay.js";
 
 export default class TrooperController {
 
@@ -9,7 +8,13 @@ export default class TrooperController {
   troopersLandedLeft: Paratrooper[];
   troopersLandedRight: Paratrooper[];
 
-  constructor(readonly canvas: Canvas, readonly flightController: FlightController, readonly overlay: Overlay) {
+  constructor(readonly canvas: Canvas, readonly flightController: FlightController) {
+    this.troopers = [];
+    this.troopersLandedLeft = [];
+    this.troopersLandedRight = [];
+  }
+
+  reset = (): void => {
     this.troopers = [];
     this.troopersLandedLeft = [];
     this.troopersLandedRight = [];
@@ -30,11 +35,6 @@ export default class TrooperController {
       }
       trooper.run();
     });
-
-    if (this.troopersLandedLeft.length >= 4 || this.troopersLandedRight.length >= 4) {
-      this.flightController.showNewHelis = false;
-      this.overlay.gameOverStatus = true;
-    }
   }
 
   landed = (trooper: Paratrooper): void => {
