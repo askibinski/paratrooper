@@ -21,34 +21,31 @@ export default class Barrel {
 
   // Handle aiming and shooting with the keys.
   handleKey = (e: KeyboardEvent): void => {
-    if (e.key.includes('Arrow')) {
-      switch (e.key) {
-        case 'ArrowUp':
-          // Stops the barrel and shoots.
-          this.rotateDirection = 0;
-          // Create a bullet (shoot).
-          const bullet = window.game.container.get('bullet');
-          bullet.aim = this.barrelPosition;
-          this.bullets.push(bullet);
-          break;
+    switch (e.code) {
+      case 'Space':
+      case 'ArrowUp':
+        e.preventDefault();
+        // Stops the barrel and shoots.
+        this.rotateDirection = 0;
+        // Create a bullet (shoot).
+        const bullet = window.game.container.get('bullet');
+        bullet.aim = this.barrelPosition;
+        this.bullets.push(bullet);
+        break;
 
-        case 'ArrowLeft':
-          if (this.barrelPosition > -0.50) {
-            this.rotateDirection = -1;
-          }
-          break;
+      case 'ArrowLeft':
+        e.preventDefault();
+        if (this.barrelPosition > -0.50) {
+          this.rotateDirection = -1;
+        }
+        break;
 
-        case 'ArrowRight':
-          if (this.barrelPosition < 0.50) {
-            this.rotateDirection = 1;
-          }
-          break;
-
-        default:
-          break;
-
-      }
-      e.preventDefault();
+      case 'ArrowRight':
+        e.preventDefault();
+        if (this.barrelPosition < 0.50) {
+          this.rotateDirection = 1;
+        }
+        break;
     }
   }
 
