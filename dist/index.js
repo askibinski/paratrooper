@@ -149,28 +149,29 @@ class Barrel {
         this.flightController = flightController;
         // Handle aiming and shooting with the keys.
         this.handleKey = (e) => {
-            if (e.key.includes('Arrow')) {
-                switch (e.key) {
-                    case 'ArrowUp':
-                        // Stops the barrel and shoots.
-                        this.rotateDirection = 0;
-                        // Create a bullet (shoot).
-                        const bullet = window.game.container.get('bullet');
-                        bullet.aim = this.barrelPosition;
-                        this.bullets.push(bullet);
-                        break;
-                    case 'ArrowLeft':
-                        if (this.barrelPosition > -0.50) {
-                            this.rotateDirection = -1;
-                        }
-                        break;
-                    case 'ArrowRight':
-                        if (this.barrelPosition < 0.50) {
-                            this.rotateDirection = 1;
-                        }
-                        break;
-                }
-                e.preventDefault();
+            switch (e.code) {
+                case 'Space':
+                case 'ArrowUp':
+                    e.preventDefault();
+                    // Stops the barrel and shoots.
+                    this.rotateDirection = 0;
+                    // Create a bullet (shoot).
+                    const bullet = window.game.container.get('bullet');
+                    bullet.aim = this.barrelPosition;
+                    this.bullets.push(bullet);
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    if (this.barrelPosition > -0.50) {
+                        this.rotateDirection = -1;
+                    }
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    if (this.barrelPosition < 0.50) {
+                        this.rotateDirection = 1;
+                    }
+                    break;
             }
         };
         this.draw = () => {
@@ -1010,7 +1011,7 @@ class Overlay {
         this.gameOver = false;
         this.timer = 0;
         this.wrapper = document.getElementById("highscores");
-        document.querySelector('#instructions').addEventListener('click', () => { alert("Use keyboard arrow keys (left, right and up).\n\nYou lose when 4 troopers land on either side of the turret.\n\nThis game does not work on mobile. We didn't have mobiles in 1989."); });
+        document.querySelector('#instructions').addEventListener('click', () => { alert("Use keyboard arrow keys left/right to aim and up/spacebar to shoot.\n\nYou lose when 4 troopers land on either side of the turret.\n\nThis game does not work on mobile. We didn't have mobiles in 1982."); });
         document.querySelector('#restart').addEventListener('click', this.restart);
         // if (!this.showHighScores) {
         //   this.drawHighScores();
