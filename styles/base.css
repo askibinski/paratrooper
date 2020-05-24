@@ -82,6 +82,8 @@ a {
 
 
 a.button, button, input[type="button"], input[type="submit"] {
+  display: inline-block;
+  line-height: 1.15;
   color: white;
   background: var(--pink);
   padding: 1rem;
