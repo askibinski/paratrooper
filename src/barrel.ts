@@ -21,6 +21,8 @@ export default class Barrel {
 
   // Handle aiming and shooting with the keys.
   handleKey = (e: KeyboardEvent): void => {
+    if (document.activeElement != document.body) return;
+
     switch (e.code) {
       case 'Space':
       case 'ArrowUp':
