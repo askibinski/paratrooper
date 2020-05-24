@@ -17,7 +17,7 @@ export default class Overlay {
     this.timer = 0;
     this.wrapper = document.getElementById("highscores");
 
-    document.querySelector('#instructions').addEventListener('click', () => { alert("Use keyboard arrow keys (left, right and up).\n\nYou lose when 4 troopers land on either side of the turret.\n\nThis game does not work on mobile. We didn't have mobiles in 1982.") });
+    document.querySelector('#instructions').addEventListener('click', () => { alert("Use keyboard arrow keys left/right to aim and up/spacebar to shoot.\n\nYou lose when 4 troopers land on either side of the turret.\n\nThis game does not work on mobile. We didn't have mobiles in 1982.") });
 
     document.querySelector('#restart').addEventListener('click', this.restart);
 

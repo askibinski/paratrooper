@@ -18,3 +18,4 @@ Play the orginal game: https://archive.org/details/msdos_Paratrooper_1982
 
 # Nice to haves
 * waves with planes with bombs
+* sound effects / music
