@@ -36,6 +36,6 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "firebase": "^7.14.4"
+    "firebase": "^11.5.0"
   }
 }
