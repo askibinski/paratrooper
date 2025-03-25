@@ -1,20 +1,21 @@
 {
   "compilerOptions": {
-    "outDir": "./dist",
-    "declaration": true,
-    "declarationDir": "./dist",
-    "allowJs": false,
-    "target": "es6",
-    "module": "es6",
-    // "noImplicitAny": true,
-    "moduleResolution": "Node",
-    // "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "allowSyntheticDefaultImports": true
   },
-  "include": [
-    "./src/**/*"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["src"]
 }

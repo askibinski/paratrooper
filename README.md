@@ -1,21 +1,63 @@
-## Paratrooper
+# Paratrooper
 
-What do you mean you don't know Paratrooper aka the greatest game of all time?
+A browser recreation of the classic game "Paratrooper" using TypeScript.
 
-Watch: https://youtu.be/SnPUsspS-LM?t=72
+## Description
 
-Play: https://5ec85a34d9c0ec0cb3c13ec6--objective-knuth-a32ed8.netlify.app/
+Paratrooper is a classic arcade game originally released in 1982. In this recreation, you control a turret to shoot down helicopters and paratroopers. You lose when 4 troopers land on either side of your turret.
 
-Play the orginal game: https://archive.org/details/msdos_Paratrooper_1982
+## Getting Started
 
-## Todos
+### Prerequisites
 
-* always show highest score 
-* trooper explosion mid-air
-* death skull showing when trooper dies from falling
-* walking troopers and climbing the turret for game over
-* turret explosion
+- Node.js (v14 or higher)
+- npm (v6 or higher)
 
-# Nice to haves
-* waves with planes with bombs
-* sound effects / music
+### Installation
+
+1. Clone the repository
+   ```
+   git clone https://github.com/askibinski/paratrooper.git
+   cd paratrooper
+   ```
+
+2. Install dependencies
+   ```
+   npm install
+   ```
+
+### Development
+
+Start the development server:
+```
+npm run dev
+```
+
+This will open the game in your default browser with hot-reload enabled.
+
+### Building
+
+To build the production version:
+```
+npm run build
+```
+
+Then to preview the production build:
+```
+npm run preview
+```
+
+## Controls
+
+- Left/Right arrow keys: Aim the turret
+- Up arrow key or Spacebar: Shoot
+- "Pause / Instructions" button: View game instructions
+- "Restart" button: Restart the game
+
+## Local Highscores
+
+The game saves your highscores locally in your browser's localStorage.
+
+## License
+
+ISC License - See LICENSE file for details

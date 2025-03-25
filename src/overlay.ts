@@ -1,8 +1,8 @@
-import Canvas from "./canvas.js";
-import Highscores from "./highscores.js";
-import TrooperController from "./trooper-controller.js";
-import FlightController from "./flight-controller.js";
-import Score from "./score.js";
+import Canvas from "./canvas";
+import Highscores from "./highscores";
+import TrooperController from "./trooper-controller";
+import FlightController from "./flight-controller";
+import Score from "./score";
 
 export default class Overlay {
 
@@ -114,8 +114,12 @@ export default class Overlay {
           let td2 = document.createElement('td');
           let td3 = document.createElement('td');
           td1.innerHTML = <string><any>i;
-          td2.innerHTML = doc.data().name;
-          td3.innerHTML = doc.data().score;
+          
+          // Safely handle potential undefined values
+          const data = doc.data();
+          td2.innerHTML = data?.name || 'Unknown';
+          td3.innerHTML = data?.score?.toString() || '0';
+          
           tr.appendChild(td1);
           tr.appendChild(td2);
           tr.appendChild(td3);
@@ -126,7 +130,15 @@ export default class Overlay {
       })
       .catch(
         err => {
-          console.log('Error getting documents', err);
+          console.log('Error getting highscores', err);
+          // Create a fallback table to avoid breaking the UI
+          this.table = document.createElement('table');
+          const tr = document.createElement('tr');
+          const td = document.createElement('td');
+          td.innerHTML = 'No highscores available';
+          tr.appendChild(td);
+          this.table.appendChild(tr);
+          this.wrapper.appendChild(this.table);
         }
       );
   }

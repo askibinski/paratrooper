@@ -1,16 +1,16 @@
-import Container from "./container.js";
-import Canvas from "./canvas.js";
-import Barrel from "./barrel.js";
-import Bullet from "./bullet.js";
-import Turret from "./turret.js";
-import FlightController from "./flight-controller.js";
-import TrooperController from "./trooper-controller.js";
-import Score from "./score.js";
-import FPS from "./fps.js";
-import Heli from "./heli.js";
-import Paratrooper from "./paratrooper.js";
-import Overlay from "./overlay.js";
-import Highscores from "./highscores.js";
+import Container from "./container";
+import Canvas from "./canvas";
+import Barrel from "./barrel";
+import Bullet from "./bullet";
+import Turret from "./turret";
+import FlightController from "./flight-controller";
+import TrooperController from "./trooper-controller";
+import Score from "./score";
+import FPS from "./fps";
+import Heli from "./heli";
+import Paratrooper from "./paratrooper";
+import Overlay from "./overlay";
+import Highscores from "./highscores";
 
 export default () => {
 

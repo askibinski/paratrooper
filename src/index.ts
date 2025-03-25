@@ -1,13 +1,13 @@
-import Container from "./container.js";
-import Services from "./services.js";
-import Canvas from "./canvas.js";
-import Barrel from "./barrel.js";
-import Turret from "./turret.js";
-import FlightController from "./flight-controller.js";
-import TrooperController from "./trooper-controller.js";
-import Score from "./score.js";
-import FPS from "./fps.js";
-import Overlay from "./overlay.js";
+import Container from "./container";
+import Services from "./services";
+import Canvas from "./canvas";
+import Barrel from "./barrel";
+import Turret from "./turret";
+import FlightController from "./flight-controller";
+import TrooperController from "./trooper-controller";
+import Score from "./score";
+import FPS from "./fps";
+import Overlay from "./overlay";
 
 export default class Game {
 
