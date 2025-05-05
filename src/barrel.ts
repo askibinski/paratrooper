@@ -59,20 +59,26 @@ export default class Barrel {
     }
   }
 
-  // Debug mode - clear screen and show only aircraft
+  // Debug mode - clear screen and show aircraft and helicopter
   debugShowAircraft = (): void => {
     this.isDebugMode = !this.isDebugMode;
     
     if (this.isDebugMode) {
-      // Create a test aircraft in the center of the screen
+      // Create a test aircraft in the center-right of the screen
       const aircraft = window.game.container.get('aircraft');
       aircraft.height = 100;
-      aircraft.startX = this.canvas.width / 2 - 200;
+      aircraft.startX = this.canvas.width / 2 + 100;
       aircraft.isDebugMode = true; // Set debug mode to prevent movement
       this.flightController.aircraft = [aircraft];
       
+      // Create a test helicopter in the center-left of the screen
+      const heli = window.game.container.get('heli');
+      heli.height = 100;
+      heli.startX = this.canvas.width / 2 - 300;
+      heli.isInDebugMode = true; // Set debug mode to prevent movement
+      this.flightController.helis = [heli];
+      
       // Clear other game objects
-      this.flightController.helis = [];
       this.flightController.bombs = [];
       this.bullets = [];
     } else {
@@ -80,7 +86,11 @@ export default class Barrel {
       this.flightController.aircraft.forEach(aircraft => {
         aircraft.isDebugMode = false;
       });
+      this.flightController.helis.forEach(heli => {
+        heli.isInDebugMode = false;
+      });
       this.flightController.aircraft = [];
+      this.flightController.helis = [];
     }
   }
 

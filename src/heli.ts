@@ -367,11 +367,13 @@ export default class Heli {
     // The second restore for the mirroring.
     this.canvas.ctx.restore();
 
-    // Make the whole thing fly!
-    this.startX = this.startX - (this.direction * Heli.HELI_SPEED);
+    // Make the whole thing fly! (but not in debug mode)
+    if (!this.isInDebugMode) {
+      this.startX = this.startX - (this.direction * Heli.HELI_SPEED);
 
-    if (this.wentOffCanvas()) {
-      this.isGone = true;
+      if (this.wentOffCanvas()) {
+        this.isGone = true;
+      }
     }
   }
 
@@ -379,5 +381,8 @@ export default class Heli {
   wentOffCanvas = () => {
     return ((this.startX > (this.canvas.width + Heli.HELI_START_CANVAS_OFFSET)) || (this.startX < (-Heli.HELI_START_CANVAS_OFFSET)));
   }
+
+  // For debug mode
+  isInDebugMode = false;
 
 }

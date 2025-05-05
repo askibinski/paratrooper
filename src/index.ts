@@ -55,9 +55,12 @@ export default class Game {
       this.canvas.setup();
       
       if (this.barrel.isDebugMode) {
-        // Debug mode - only show aircraft
+        // Debug mode - show both aircraft and helicopter
         this.flightController.aircraft.forEach(aircraft => {
           aircraft.draw();
+        });
+        this.flightController.helis.forEach(heli => {
+          heli.draw();
         });
       } else {
         // Normal game rendering
