@@ -4,6 +4,11 @@ export default class Canvas {
   static readonly PINK = '#fe52fc';
   static readonly BLACK = '#000000';
   static readonly BLUE = '#56faf7';
+  static readonly RED = '#ff0000';
+  static readonly ORANGE = '#ffa500';
+  static readonly YELLOW = '#ffff00';
+  static readonly GREEN = '#00ff00';
+  static readonly CYAN = '#00ffff';
 
   ctx: CanvasRenderingContext2D;
   width: number;

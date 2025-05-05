@@ -8,6 +8,7 @@ export default class Bomb {
   static readonly BOMB_HEIGHT = 15;
   static readonly BOMB_SPEED = 5;
   static readonly BOMB_SCORE = 3;
+  static readonly SCALE = 3.0; // Match with aircraft scale for consistency
 
   bombX: number;
   bombY: number;
@@ -29,19 +30,26 @@ export default class Bomb {
       return;
     }
 
-    // Draw bomb
-    this.canvas.ctx.fillStyle = Canvas.RED;
-    this.canvas.ctx.beginPath();
-    this.canvas.ctx.rect(this.bombX - (Bomb.BOMB_WIDTH / 2), this.bombY, Bomb.BOMB_WIDTH, Bomb.BOMB_HEIGHT);
-    this.canvas.ctx.fill();
+    // Enable crisp pixel rendering
+    this.canvas.ctx.imageSmoothingEnabled = false;
 
-    // Draw fuse/tail
-    this.canvas.ctx.strokeStyle = Canvas.YELLOW;
-    this.canvas.ctx.lineWidth = 2;
-    this.canvas.ctx.beginPath();
-    this.canvas.ctx.moveTo(this.bombX, this.bombY);
-    this.canvas.ctx.lineTo(this.bombX, this.bombY - 10);
-    this.canvas.ctx.stroke();
+    // Draw pixelated bomb (2x3 pixels, scaled up)
+    this.canvas.ctx.fillStyle = Canvas.RED;
+    this.canvas.ctx.fillRect(
+      Math.floor(this.bombX - 1 * Bomb.SCALE), 
+      Math.floor(this.bombY), 
+      2 * Bomb.SCALE, 
+      3 * Bomb.SCALE
+    );
+
+    // Draw fuse/tail (single yellow pixel, scaled up)
+    this.canvas.ctx.fillStyle = Canvas.YELLOW;
+    this.canvas.ctx.fillRect(
+      Math.floor(this.bombX - 1 * Bomb.SCALE), 
+      Math.floor(this.bombY - 1 * Bomb.SCALE), 
+      1 * Bomb.SCALE, 
+      1 * Bomb.SCALE
+    );
 
     // Make the bomb fall
     this.bombY = this.bombY + Bomb.BOMB_SPEED;
@@ -57,20 +65,66 @@ export default class Bomb {
   }
 
   drawExplosion = (): void => {
-    const explosionRadius = this.explosionFrame * 3;
+    // Enable crisp pixel rendering
+    this.canvas.ctx.imageSmoothingEnabled = false;
     
-    // Draw explosion circle
-    this.canvas.ctx.fillStyle = Canvas.ORANGE;
-    this.canvas.ctx.beginPath();
-    this.canvas.ctx.arc(this.bombX, this.bombY, explosionRadius, 0, 2 * Math.PI);
-    this.canvas.ctx.fill();
+    // Use alternating frames for simple animation effect
+    const frame = Math.floor(this.explosionFrame / 2) % 2;
     
-    // Draw explosion outline
-    this.canvas.ctx.strokeStyle = Canvas.RED;
-    this.canvas.ctx.lineWidth = 2;
-    this.canvas.ctx.beginPath();
-    this.canvas.ctx.arc(this.bombX, this.bombY, explosionRadius, 0, 2 * Math.PI);
-    this.canvas.ctx.stroke();
+    // Draw pixelated explosion
+    if (frame === 0) {
+      // First explosion frame - small + pattern (scaled up)
+      this.canvas.ctx.fillStyle = Canvas.YELLOW;
+      this.canvas.ctx.fillRect(
+        Math.floor(this.bombX - 2 * Bomb.SCALE), 
+        Math.floor(this.bombY), 
+        4 * Bomb.SCALE, 
+        1 * Bomb.SCALE
+      );
+      this.canvas.ctx.fillRect(
+        Math.floor(this.bombX), 
+        Math.floor(this.bombY - 2 * Bomb.SCALE), 
+        1 * Bomb.SCALE, 
+        4 * Bomb.SCALE
+      );
+      
+      this.canvas.ctx.fillStyle = Canvas.ORANGE;
+      this.canvas.ctx.fillRect(
+        Math.floor(this.bombX - 1 * Bomb.SCALE), 
+        Math.floor(this.bombY - 1 * Bomb.SCALE), 
+        2 * Bomb.SCALE, 
+        2 * Bomb.SCALE
+      );
+    } else {
+      // Second explosion frame - larger + pattern (scaled up)
+      this.canvas.ctx.fillStyle = Canvas.RED;
+      this.canvas.ctx.fillRect(
+        Math.floor(this.bombX - 3 * Bomb.SCALE), 
+        Math.floor(this.bombY), 
+        6 * Bomb.SCALE, 
+        1 * Bomb.SCALE
+      );
+      this.canvas.ctx.fillRect(
+        Math.floor(this.bombX), 
+        Math.floor(this.bombY - 3 * Bomb.SCALE), 
+        1 * Bomb.SCALE, 
+        6 * Bomb.SCALE
+      );
+      
+      this.canvas.ctx.fillStyle = Canvas.ORANGE;
+      this.canvas.ctx.fillRect(
+        Math.floor(this.bombX - 2 * Bomb.SCALE), 
+        Math.floor(this.bombY - 1 * Bomb.SCALE), 
+        4 * Bomb.SCALE, 
+        2 * Bomb.SCALE
+      );
+      this.canvas.ctx.fillRect(
+        Math.floor(this.bombX - 1 * Bomb.SCALE), 
+        Math.floor(this.bombY - 2 * Bomb.SCALE), 
+        2 * Bomb.SCALE, 
+        4 * Bomb.SCALE
+      );
+    }
     
     this.explosionFrame++;
     
@@ -84,7 +138,7 @@ export default class Bomb {
     const turretCenterX = this.canvas.width / 2;
     const turretTopY = this.canvas.height - Turret.BASE_WIDTH_HEIGHT - Turret.SCORE_HEIGHT;
     
-    return (this.bombY + Bomb.BOMB_HEIGHT >= turretTopY) && 
+    return (this.bombY + (Bomb.BOMB_HEIGHT * Bomb.SCALE) >= turretTopY) && 
            (this.bombX >= turretCenterX - (Turret.BASE_WIDTH_HEIGHT / 2)) && 
            (this.bombX <= turretCenterX + (Turret.BASE_WIDTH_HEIGHT / 2));
   }
@@ -92,9 +146,9 @@ export default class Bomb {
   // Check if bullet hit the bomb
   wasHit = (bulletX: number, bulletY: number): boolean => {
     return !this.isExploding && 
-           (bulletX >= this.bombX - Bomb.BOMB_WIDTH) && 
-           (bulletX <= this.bombX + Bomb.BOMB_WIDTH) && 
-           (bulletY >= this.bombY - Bomb.BOMB_HEIGHT) && 
-           (bulletY <= this.bombY + Bomb.BOMB_HEIGHT);
+           (bulletX >= this.bombX - (Bomb.BOMB_WIDTH * Bomb.SCALE / 2)) && 
+           (bulletX <= this.bombX + (Bomb.BOMB_WIDTH * Bomb.SCALE / 2)) && 
+           (bulletY >= this.bombY - (Bomb.BOMB_HEIGHT * Bomb.SCALE / 2)) && 
+           (bulletY <= this.bombY + (Bomb.BOMB_HEIGHT * Bomb.SCALE / 2));
   }
 }
