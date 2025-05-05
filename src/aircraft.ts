@@ -3,7 +3,8 @@ import Turret from "./turret";
 
 export default class Aircraft {
 
-  static readonly SCALE = 3.0;  // Scaling for proper visibility
+  static readonly SCALE = 20.0;  // Scaling for proper visibility
+  static readonly LINE_THICKNESS = 0.5;  // Thickness ratio for lines
   static readonly AIRCRAFT_SPEED = 7;
   static readonly AIRCRAFT_START_CANVAS_OFFSET = 100;
   static readonly AIRCRAFT_LENGTH = 25;  // Base length of aircraft
@@ -94,95 +95,96 @@ export default class Aircraft {
     
     switch (name) {
       case 'aircraft-body':
-        // Main body - cyan (light blue)
+        // Bottom horizontal line (cyan) - matches original pixel art
         this.canvas.ctx.fillStyle = Canvas.CYAN;
-        this.canvas.ctx.beginPath();
-        this.canvas.ctx.moveTo(x, y);
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 3), y - (Aircraft.SCALE * 1));
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 20), y - (Aircraft.SCALE * 1));
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 23), y);
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 20), y + (Aircraft.SCALE * 1));
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 3), y + (Aircraft.SCALE * 1));
-        this.canvas.ctx.closePath();
-        this.canvas.ctx.fill();
+        
+        // Draw the bottom horizontal line (9 pixels wide)
+        this.canvas.ctx.fillRect(
+          x + (Aircraft.SCALE * 2),
+          y,
+          Aircraft.SCALE * 9,
+          Aircraft.SCALE * Aircraft.LINE_THICKNESS
+        );
         break;
         
       case 'aircraft-body-outline':
-        // Body outline - white
-        this.canvas.ctx.strokeStyle = Canvas.CYAN;
-        this.canvas.ctx.lineWidth = Aircraft.SCALE * 0.5;
-        this.canvas.ctx.beginPath();
-        this.canvas.ctx.moveTo(x, y);
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 3), y - (Aircraft.SCALE * 1));
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 20), y - (Aircraft.SCALE * 1));
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 23), y);
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 20), y + (Aircraft.SCALE * 1));
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 3), y + (Aircraft.SCALE * 1));
-        this.canvas.ctx.closePath();
-        this.canvas.ctx.stroke();
+        // Upper diagonal line (cyan) from nose to middle
+        this.canvas.ctx.fillStyle = Canvas.CYAN;
+        
+        // Diagonal line from nose to middle (3 pixels)
+        this.canvas.ctx.fillRect(
+          x + (Aircraft.SCALE * 2),
+          y - (Aircraft.SCALE * 1),
+          Aircraft.SCALE * 1,
+          Aircraft.SCALE * Aircraft.LINE_THICKNESS
+        );
+        this.canvas.ctx.fillRect(
+          x + (Aircraft.SCALE * 3),
+          y - (Aircraft.SCALE * 2),
+          Aircraft.SCALE * 1,
+          Aircraft.SCALE * Aircraft.LINE_THICKNESS
+        );
+        this.canvas.ctx.fillRect(
+          x + (Aircraft.SCALE * 4),
+          y - (Aircraft.SCALE * 2),
+          Aircraft.SCALE * 1,
+          Aircraft.SCALE * Aircraft.LINE_THICKNESS
+        );
         break;
         
       case 'aircraft-window':
-        // Window - white
+        // Cockpit/window (white pixel)
         this.canvas.ctx.fillStyle = Canvas.WHITE;
-        this.canvas.ctx.beginPath();
-        this.canvas.ctx.rect(
+        this.canvas.ctx.fillRect(
           x + (Aircraft.SCALE * 5),
-          y - (Aircraft.SCALE * 0.75),
-          Aircraft.SCALE * 2,
-          Aircraft.SCALE * 0.75
+          y - (Aircraft.SCALE * 1),
+          Aircraft.SCALE * 1,
+          Aircraft.SCALE * 1
         );
-        this.canvas.ctx.fill();
         break;
         
       case 'aircraft-wing':
-        // Upper wing - blue/purple
-        this.canvas.ctx.fillStyle = Canvas.PINK;
-        this.canvas.ctx.beginPath();
-        this.canvas.ctx.moveTo(x + (Aircraft.SCALE * 10), y - (Aircraft.SCALE * 1));
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 8), y - (Aircraft.SCALE * 4));
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 16), y - (Aircraft.SCALE * 4));
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 18), y - (Aircraft.SCALE * 1));
-        this.canvas.ctx.closePath();
-        this.canvas.ctx.fill();
+        // Upper horizontal line (cyan) connecting to tail
+        this.canvas.ctx.fillStyle = Canvas.CYAN;
+        this.canvas.ctx.fillRect(
+          x + (Aircraft.SCALE * 6),
+          y - (Aircraft.SCALE * 2),
+          Aircraft.SCALE * 5,
+          Aircraft.SCALE * Aircraft.LINE_THICKNESS
+        );
         break;
         
       case 'aircraft-wing-outline':
-        // Wing outline
-        this.canvas.ctx.strokeStyle = Canvas.CYAN;
-        this.canvas.ctx.lineWidth = Aircraft.SCALE * 0.5;
-        this.canvas.ctx.beginPath();
-        this.canvas.ctx.moveTo(x + (Aircraft.SCALE * 10), y - (Aircraft.SCALE * 1));
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 8), y - (Aircraft.SCALE * 4));
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 16), y - (Aircraft.SCALE * 4));
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 18), y - (Aircraft.SCALE * 1));
-        this.canvas.ctx.closePath();
-        this.canvas.ctx.stroke();
+        // Connect the nose to the bottom
+        this.canvas.ctx.fillStyle = Canvas.CYAN;
+        this.canvas.ctx.fillRect(
+          x + (Aircraft.SCALE * 2),
+          y - (Aircraft.SCALE * 1),
+          Aircraft.SCALE * Aircraft.LINE_THICKNESS,
+          Aircraft.SCALE * 1
+        );
         break;
         
       case 'aircraft-tail':
-        // Tail - cyan
+        // Vertical stabilizer (cyan)
         this.canvas.ctx.fillStyle = Canvas.CYAN;
-        this.canvas.ctx.beginPath();
-        this.canvas.ctx.moveTo(x + (Aircraft.SCALE * 18), y - (Aircraft.SCALE * 1));
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 19), y - (Aircraft.SCALE * 3));
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 22), y - (Aircraft.SCALE * 3));
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 21), y - (Aircraft.SCALE * 1));
-        this.canvas.ctx.closePath();
-        this.canvas.ctx.fill();
+        this.canvas.ctx.fillRect(
+          x + (Aircraft.SCALE * 9),
+          y - (Aircraft.SCALE * 3),
+          Aircraft.SCALE * 2,
+          Aircraft.SCALE * Aircraft.LINE_THICKNESS
+        );
         break;
         
       case 'aircraft-tail-outline':
-        // Tail outline
-        this.canvas.ctx.strokeStyle = Canvas.CYAN;
-        this.canvas.ctx.lineWidth = Aircraft.SCALE * 0.5;
-        this.canvas.ctx.beginPath();
-        this.canvas.ctx.moveTo(x + (Aircraft.SCALE * 18), y - (Aircraft.SCALE * 1));
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 19), y - (Aircraft.SCALE * 3));
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 22), y - (Aircraft.SCALE * 3));
-        this.canvas.ctx.lineTo(x + (Aircraft.SCALE * 21), y - (Aircraft.SCALE * 1));
-        this.canvas.ctx.closePath();
-        this.canvas.ctx.stroke();
+        // Connect the tail to the body
+        this.canvas.ctx.fillStyle = Canvas.CYAN;
+        this.canvas.ctx.fillRect(
+          x + (Aircraft.SCALE * 10),
+          y - (Aircraft.SCALE * 1),
+          Aircraft.SCALE * Aircraft.LINE_THICKNESS,
+          Aircraft.SCALE * 1
+        );
         break;
         
         }
@@ -209,9 +211,13 @@ export default class Aircraft {
   getItemPartCenter = (name: string, x: number, y: number): { centerX: number, centerY: number } => {
     switch (name) {
       case 'aircraft-body':
+        return {
+          centerX: x + (Aircraft.SCALE * 6),
+          centerY: y + (Aircraft.SCALE * 0.5),
+        };
       case 'aircraft-body-outline':
         return {
-          centerX: x + (Aircraft.SCALE * 12),
+          centerX: x + (Aircraft.SCALE * 6),
           centerY: y,
         };
       case 'aircraft-window':
@@ -220,30 +226,40 @@ export default class Aircraft {
           centerY: y - (Aircraft.SCALE * 0.5),
         };
       case 'aircraft-wing':
+        return {
+          centerX: x + (Aircraft.SCALE * 6),
+          centerY: y - (Aircraft.SCALE * 1),
+        };
       case 'aircraft-wing-outline':
         return {
-          centerX: x + (Aircraft.SCALE * 13),
-          centerY: y - (Aircraft.SCALE * 2.5),
+          centerX: x + (Aircraft.SCALE * 6),
+          centerY: y - (Aircraft.SCALE * 1),
         };
       case 'aircraft-tail':
+        return {
+          centerX: x + (Aircraft.SCALE * 9),
+          centerY: y - (Aircraft.SCALE * 1),
+        };
       case 'aircraft-tail-outline':
         return {
-          centerX: x + (Aircraft.SCALE * 20),
-          centerY: y - (Aircraft.SCALE * 2),
+          centerX: x + (Aircraft.SCALE * 9),
+          centerY: y - (Aircraft.SCALE * 1),
         };
       default:
         return {
-          centerX: x + (Aircraft.SCALE * 12),
+          centerX: x + (Aircraft.SCALE * 6),
           centerY: y,
         };
     }
   }
 
+  isDebugMode: boolean = false;
+
   draw = (): void => {
     this.frame++;
 
     // Each framerun, check if we should drop a bomb
-    if (this.isOverTurret() && !this.bombDropped) {
+    if (this.isOverTurret() && !this.bombDropped && !this.isDebugMode) {
       this.shouldDropBomb = true;
       this.bombDropped = true;
     }
@@ -276,11 +292,13 @@ export default class Aircraft {
     // The second restore for the mirroring.
     this.canvas.ctx.restore();
 
-    // Make the aircraft fly!
-    this.startX = this.startX - (this.direction * Aircraft.AIRCRAFT_SPEED);
+    // Make the aircraft fly! (but not in debug mode)
+    if (!this.isDebugMode) {
+      this.startX = this.startX - (this.direction * Aircraft.AIRCRAFT_SPEED);
 
-    if (this.wentOffCanvas()) {
-      this.isGone = true;
+      if (this.wentOffCanvas()) {
+        this.isGone = true;
+      }
     }
   }
 

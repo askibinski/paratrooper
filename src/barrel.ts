@@ -10,11 +10,13 @@ export default class Barrel {
   barrelPosition: number;
   rotateDirection: number;
   bullets: Bullet[];
+  isDebugMode: boolean;
 
   constructor(readonly canvas: Canvas, readonly turret: Turret, readonly flightController: FlightController) {
     this.barrelPosition = 0;
     this.rotateDirection = 0;
     this.bullets = [];
+    this.isDebugMode = false;
 
     window.addEventListener('keydown', this.handleKey);
   }
@@ -48,6 +50,37 @@ export default class Barrel {
           this.rotateDirection = 1;
         }
         break;
+        
+      case 'KeyP':
+        e.preventDefault();
+        // Debug mode - clear screen and show aircraft
+        this.debugShowAircraft();
+        break;
+    }
+  }
+
+  // Debug mode - clear screen and show only aircraft
+  debugShowAircraft = (): void => {
+    this.isDebugMode = !this.isDebugMode;
+    
+    if (this.isDebugMode) {
+      // Create a test aircraft in the center of the screen
+      const aircraft = window.game.container.get('aircraft');
+      aircraft.height = 100;
+      aircraft.startX = this.canvas.width / 2 - 200;
+      aircraft.isDebugMode = true; // Set debug mode to prevent movement
+      this.flightController.aircraft = [aircraft];
+      
+      // Clear other game objects
+      this.flightController.helis = [];
+      this.flightController.bombs = [];
+      this.bullets = [];
+    } else {
+      // Return to normal game mode
+      this.flightController.aircraft.forEach(aircraft => {
+        aircraft.isDebugMode = false;
+      });
+      this.flightController.aircraft = [];
     }
   }
 

@@ -53,13 +53,23 @@ export default class Game {
     if (elapsed > this.fpsInterval) {
       this.canvas.clear();
       this.canvas.setup();
-      this.barrel.draw();
-      this.flightController.run();
-      this.trooperController.run();
-      this.turret.draw();
-      this.score.run();
-      this.fps.run();
-      this.overlay.run();
+      
+      if (this.barrel.isDebugMode) {
+        // Debug mode - only show aircraft
+        this.flightController.aircraft.forEach(aircraft => {
+          aircraft.draw();
+        });
+      } else {
+        // Normal game rendering
+        this.barrel.draw();
+        this.flightController.run();
+        this.trooperController.run();
+        this.turret.draw();
+        this.score.run();
+        this.fps.run();
+        this.overlay.run();
+      }
+      
       this.lastUpdate = now - (elapsed % this.fpsInterval);
     }
 
