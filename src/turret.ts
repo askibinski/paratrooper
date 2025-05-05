@@ -65,4 +65,27 @@ export default class Turret {
     this.canvas.ctx.fill();
   }
 
+  // Called when a bomb hits the turret
+  wasHit = (): void => {
+    console.log("TURRET WAS HIT!");
+    
+    // Draw explosion on turret
+    this.canvas.ctx.fillStyle = Canvas.RED;
+    this.canvas.ctx.beginPath();
+    this.canvas.ctx.arc(
+      this.canvas.width / 2,
+      this.canvas.height - Turret.BASE_WIDTH_HEIGHT - Turret.SCORE_HEIGHT - 20,
+      40, 
+      0, 
+      2 * Math.PI
+    );
+    this.canvas.ctx.fill();
+    
+    // Trigger game over
+    if (window.game && window.game.overlay) {
+      // Try to trigger game over
+      console.log("Triggering game over");
+      window.game.overlay.gameOverStatus = true;
+    }
+  }
 }

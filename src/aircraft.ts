@@ -57,13 +57,30 @@ export default class Aircraft {
     this.startY = height;
   }
 
-  // Check if the aircraft is directly over the turret (to drop bombs)
-  isOverTurret(): boolean {
-    const turretCenter = this.canvas.width / 2;
-    const aircraftCenter = this.startX + (Aircraft.SCALE * Aircraft.AIRCRAFT_LENGTH / 2);
+  // Time to wait before dropping a bomb (frames) - just 1 frame to drop immediately
+  static readonly BOMB_DROP_DELAY = 1;
+  
+  // Drop bomb immediately when aircraft appears on screen
+  shouldDropBombNow(): boolean {
+    // Skip if in debug mode or already dropped a bomb
+    if (this.isDebugMode || this.bombDropped || this.isExploding) return false;
     
-    return Math.abs(turretCenter - aircraftCenter) < Aircraft.BOMB_DROP_THRESHOLD &&
-           !this.bombDropped && !this.isExploding;
+    // Check if we're on screen (just entered the visible area)
+    const isOnScreenLeft = this.direction === -1 && 
+                          this.startX < this.canvas.width - 50 && 
+                          this.startX > this.canvas.width - 150;
+                          
+    const isOnScreenRight = this.direction === 1 && 
+                           this.startX > 50 && 
+                           this.startX < 150;
+    
+    const shouldDrop = (isOnScreenLeft || isOnScreenRight);
+    
+    if (shouldDrop) {
+      console.log("Aircraft dropping bomb as it enters screen!", this.startX, this.startY);
+    }
+    
+    return shouldDrop;
   }
 
   // A wrapper around every item part which needs to be drawn, containing logic
@@ -135,8 +152,9 @@ export default class Aircraft {
   draw = (): void => {
     this.frame++;
 
-    // Each framerun, check if we should drop a bomb
-    if (this.isOverTurret() && !this.bombDropped && !this.isDebugMode) {
+    // Check if we should drop a bomb based on timing
+    if (this.shouldDropBombNow()) {
+      console.log("Aircraft decided to drop bomb");
       this.shouldDropBomb = true;
       this.bombDropped = true;
     }

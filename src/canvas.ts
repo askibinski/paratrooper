@@ -30,9 +30,17 @@ export default class Canvas {
 
   // Background color canvas.
   setup = (): void => {
+    // Log canvas dimensions once
+    if (!this._dimensionsLogged) {
+      console.log("Canvas dimensions:", this.width, this.height);
+      this._dimensionsLogged = true;
+    }
+    
     this.ctx.fillStyle = Canvas.BLACK;
     this.ctx.fillRect(0, 0, this.width, this.height);
   }
+  
+  private _dimensionsLogged: boolean = false;
 
   // Get a random integer in a certain range.
   getRndInteger(min: number, max: number): number {

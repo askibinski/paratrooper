@@ -146,38 +146,68 @@ export default class FlightController {
     });
 
     // Update and draw aircraft
-    this.aircraft.forEach((aircraft, index) => {
-      // Check if aircraft should drop a bomb
+    for (let i = this.aircraft.length - 1; i >= 0; i--) {
+      const aircraft = this.aircraft[i];
+      
+      // First draw the aircraft (this updates its frame count)
+      aircraft.draw();
+      
+      // Check if it's time to drop a bomb
       if (aircraft.shouldDropBomb) {
-        this.createBomb(aircraft.startX, aircraft.startY);
+        console.log("Aircraft " + i + " wants to drop a bomb at position", aircraft.startX, aircraft.startY);
+        this.createBomb(aircraft.startX, aircraft.startY, aircraft);
         aircraft.shouldDropBomb = false;
       }
       
       // If the aircraft went off canvas or was destroyed, remove it
       if (aircraft.isGone) {
-        this.aircraft.splice(index, 1);
-        return;
+        console.log("Aircraft gone, removing");
+        this.aircraft.splice(i, 1);
       }
-      aircraft.draw();
-    });
+    }
   }
 
   manageBombs(): void {
+    console.log("Managing bombs, count:", this.bombs.length);
+    
     // Update and draw bombs
     for (let i = this.bombs.length - 1; i >= 0; i--) {
       if (this.bombs[i].isGone) {
+        console.log("Removing gone bomb");
         this.bombs.splice(i, 1);
         continue;
       }
+      console.log("Drawing bomb", i);
       this.bombs[i].draw();
     }
   }
 
-  createBomb(x: number, y: number): void {
+  createBomb(x: number, y: number, sourceAircraft?: Aircraft): void {
+    console.log("Creating bomb at", x, y);
+    
+    // Get a new bomb instance
     const bomb = window.game.container.get('bomb');
-    bomb.bombX = x;
-    bomb.bombY = y;
-    this.bombs.push(bomb);
+    
+    if (sourceAircraft) {
+      // Use the specific aircraft that triggered the bomb drop
+      const direction = sourceAircraft.direction;
+      console.log("Using source aircraft for bomb drop, direction:", direction);
+      
+      // Initialize the bomb with the aircraft's current position and speed
+      bomb.initialize(
+        sourceAircraft.startX, 
+        sourceAircraft.startY, 
+        direction, 
+        Aircraft.AIRCRAFT_SPEED
+      );
+      
+      // Add to the bombs array
+      this.bombs.push(bomb);
+      console.log("Bomb created from aircraft at", sourceAircraft.startX, sourceAircraft.startY);
+    } else {
+      // Should never happen with the new logic, but keep as fallback
+      console.log("No source aircraft provided for bomb drop");
+    }
   }
 
   checkBulletHit(bulletX: number, bulletY: number): boolean {

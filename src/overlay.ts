@@ -51,6 +51,7 @@ export default class Overlay {
   }
 
   set gameOverStatus(status: boolean) {
+    console.log("Setting game over status to:", status);
     this.gameOver = status;
   }
 
