@@ -14,7 +14,7 @@ export default class FlightController {
   static readonly MAX_HELIS_START = 3;
   static readonly MAX_AIRCRAFT_START = 1;
   static readonly INCREASE_START_INTERVAL = 12;
-  static readonly WAVE_THRESHOLD = 20; // After 20 helis have appeared, aircraft start appearing
+  static readonly WAVE_THRESHOLD = 1; // After 1 helis have appeared, aircraft start appearing
 
   helis: Heli[];
   aircraft: Aircraft[];
@@ -27,6 +27,7 @@ export default class FlightController {
   totalHelis: number;
   totalAircraft: number;
   difficultyInterval: number;
+  waveModeActive: boolean;
 
   constructor(readonly canvas: Canvas, readonly turret: Turret, readonly score: Score) {
     this.helis = [];
@@ -40,6 +41,7 @@ export default class FlightController {
     this.totalHelis = 0;
     this.totalAircraft = 0;
     this.difficultyInterval = FlightController.INCREASE_START_INTERVAL;
+    this.waveModeActive = false;
   }
 
   set showNewHelis(show: boolean) {
@@ -60,12 +62,19 @@ export default class FlightController {
     this.showAircraft = false;
     this.totalHelis = 0;
     this.totalAircraft = 0;
+    this.waveModeActive = false;
   }
 
   run(): void {
 
-    // Check if we should start showing aircraft (after a certain number of helis destroyed)
-    if (this.totalHelis >= FlightController.WAVE_THRESHOLD && !this.showAircraft) {
+    // Check if threshold is reached and we should enter wave transition mode
+    if (this.totalHelis >= FlightController.WAVE_THRESHOLD && !this.waveModeActive && !this.showAircraft) {
+      this.waveModeActive = true;
+      this.newHelis = false; // Stop spawning new helicopters
+    }
+    
+    // Check if all helicopters are gone and we can start aircraft wave
+    if (this.waveModeActive && this.helis.length === 0 && !this.showAircraft) {
       this.showAircraft = true;
     }
 
