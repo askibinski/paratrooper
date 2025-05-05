@@ -43,16 +43,26 @@ export default class Bullet {
       return;
     }
 
-    // We should check if we hit anything when the bullet is at these heights.
+    // Check if we hit a bomb
+    if (this.flightController.checkBulletHit(this.bulletX, this.bulletY)) {
+      this.isGone = true;
+      return;
+    }
+
+    // Check if we hit a heli at appropriate heights
     if (this.bulletY >= FlightController.HELI_HEIGHT_HIGH && this.bulletY <= FlightController.HELI_HEIGHT_LOW) {
       this.checkHeliHit();
+    }
+
+    // Check if we hit an aircraft at appropriate heights
+    if (this.bulletY >= FlightController.AIRCRAFT_HEIGHT_HIGH && this.bulletY <= FlightController.AIRCRAFT_HEIGHT_LOW) {
+      this.checkAircraftHit();
     }
 
     // Check if we are hitting any troopers.
     if (this.trooperController.troopers.length > 0) {
       this.checkTrooperHit();
     }
-
   }
 
   checkHeliHit = (): void => {
@@ -65,6 +75,21 @@ export default class Bullet {
           this.isGone = true;
           // A heli is 10 points!
           this.score.add(10);
+        }
+      }
+    });
+  }
+
+  checkAircraftHit = (): void => {
+    this.flightController.aircraft.forEach((aircraft) => {
+      if (!aircraft.isExploding && this.bulletY > (aircraft.startY - 25) && this.bulletY < (aircraft.startY + 25)) {
+        let aircraftCollisionRange = [aircraft.startX, aircraft.startX + (2 * aircraft.collisionWidth)];
+        aircraftCollisionRange.sort((a, b) => a - b);
+        if (this.bulletX >= aircraftCollisionRange[0] && this.bulletX <= aircraftCollisionRange[1]) {
+          aircraft.isExploding = true;
+          this.isGone = true;
+          // An aircraft is 15 points!
+          this.score.add(15);
         }
       }
     });
