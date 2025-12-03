@@ -128,6 +128,7 @@ export default class Heli {
         this.canvas.ctx.lineTo(x, y);
         this.canvas.ctx.closePath();
         this.canvas.ctx.fill();
+        break;
       case 'heli-body-stroke':
         this.canvas.ctx.strokeStyle = Canvas.WHITE;
         this.canvas.ctx.lineWidth = (Heli.SCALE * 10);

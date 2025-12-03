@@ -29,7 +29,12 @@
     "eslint": "^8.56.0",
     "prettier": "^3.1.1",
     "typescript": "^5.3.3",
-    "vite": "^5.0.10"
+    "vite": "^5.4.20"
+  },
+  "overrides": {
+    "esbuild": "^0.25.0",
+    "js-yaml": "^4.1.1",
+    "brace-expansion": "^2.0.1"
   },
   "dependencies": {}
 }
