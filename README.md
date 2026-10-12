@@ -69,6 +69,7 @@ npm run preview
 
 ## Controls
 
+- Spacebar, Enter or tap: Start the game from the title screen
 - Left/Right arrow keys: Aim the turret (it keeps turning until you shoot or press Down)
 - Up arrow key or Spacebar: Shoot
 - Down arrow key: Stop turning

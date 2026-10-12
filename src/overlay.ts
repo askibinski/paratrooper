@@ -41,9 +41,10 @@ export default class Overlay {
     this.bindButton('#restart', () => window.game.restart());
 
     window.addEventListener('keydown', this.handleKey);
+    this.canvas.element.addEventListener('pointerdown', this.start);
     // Pause when the player switches tabs.
     document.addEventListener('visibilitychange', () => {
-      if (document.hidden && this.state.phase !== 'over') {
+      if (document.hidden && this.state.canPause) {
         this.state.paused = true;
       }
     });
@@ -62,6 +63,14 @@ export default class Overlay {
     if (isTyping()) return;
 
     switch (e.code) {
+      case 'Space':
+      case 'Enter':
+      case 'ArrowUp':
+        if (this.state.phase === 'title') {
+          e.preventDefault();
+          this.start();
+        }
+        break;
       case 'KeyP':
       case 'Escape':
         this.togglePause();
@@ -75,8 +84,15 @@ export default class Overlay {
   }
 
   togglePause = (): void => {
-    if (this.state.phase === 'over') return;
+    if (!this.state.canPause) return;
     this.state.paused = !this.state.paused;
+  }
+
+  // Leave the title screen.
+  start = (): void => {
+    if (this.state.phase === 'title') {
+      this.state.setPhase('playing');
+    }
   }
 
   reset = (): void => {
@@ -89,6 +105,10 @@ export default class Overlay {
     if (this.state.phase === 'destroyed' && this.state.phaseFrames >= Overlay.EXPLOSION_FRAMES) {
       this.state.setPhase('over');
       this.sound.gameOver();
+    }
+
+    if (this.state.phase === 'title') {
+      this.drawTitle();
     }
 
     if (this.state.phase === 'over') {
@@ -107,14 +127,24 @@ export default class Overlay {
 
   // Drawn once on top of the frozen game.
   drawPause = (): void => {
+    this.drawInstructions('PAUSED', 'Press P to continue');
+  }
+
+  drawTitle = (): void => {
+    // Blinking "press start", like it's 1982.
+    const blink = Math.floor(this.state.phaseFrames / 30) % 2 === 0;
+    this.drawInstructions('PARATROOPER', blink ? 'Press SPACE or tap to start' : '');
+  }
+
+  drawInstructions = (title: string, footer: string): void => {
     this.dim(0.8);
     const { centerX } = this.canvas;
-    this.canvas.text('PAUSED', centerX, 80, 128, 'center', Canvas.PINK);
+    this.canvas.text(title, centerX, 80, 128, 'center', Canvas.PINK);
     // Left aligned, so the (monospace) columns line up.
     Overlay.INSTRUCTIONS.forEach((line, i) => {
       this.canvas.text(line, 340, 260 + i * 56, 44);
     });
-    this.canvas.text('Press P to continue', centerX, this.canvas.height - 130, 48, 'center', Canvas.BLUE);
+    this.canvas.text(footer, centerX, this.canvas.height - 130, 48, 'center', Canvas.BLUE);
   }
 
   drawGameOver = (): void => {

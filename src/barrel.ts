@@ -26,7 +26,8 @@ export default class Barrel {
 
   // Handle aiming and shooting with the keys.
   handleKey = (e: KeyboardEvent): void => {
-    if (isTyping() || this.state.paused) return;
+    // On the title screen, the overlay handles the keys.
+    if (isTyping() || this.state.paused || this.state.phase === 'title') return;
 
     switch (e.code) {
       case 'Space':
@@ -55,7 +56,7 @@ export default class Barrel {
   // Touch/mouse: tap the left or right third of the screen to aim,
   // the middle to shoot.
   handlePointer = (e: PointerEvent): void => {
-    if (this.state.paused) return;
+    if (this.state.paused || this.state.phase === 'title') return;
     e.preventDefault();
     const rect = this.canvas.element.getBoundingClientRect();
     const relativeX = (e.clientX - rect.left) / rect.width;
