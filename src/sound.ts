@@ -26,7 +26,7 @@ export default class Sound {
 
   handleKey = (e: KeyboardEvent): void => {
     this.unlock();
-    if (e.code === 'KeyM' && !isTyping()) {
+    if (e.code === 'KeyM' && !e.repeat && !isTyping()) {
       this.toggle();
     }
   }

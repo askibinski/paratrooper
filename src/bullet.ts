@@ -115,7 +115,7 @@ export default class Bullet {
 
       // A chute hit doesn't actually give you points. But the inevitable
       // death of the trooper will.
-      if (trooper.chute === 'open' && contains(trooper.chuteBounds(), this.x, this.y, Bullet.SIZE / 2)) {
+      if (trooper.state === 'falling' && trooper.chute === 'open' && contains(trooper.chuteBounds(), this.x, this.y, Bullet.SIZE / 2)) {
         trooper.chute = 'shot';
         this.sound.chuteHit();
         return true;

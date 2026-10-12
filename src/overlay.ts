@@ -60,7 +60,8 @@ export default class Overlay {
   }
 
   handleKey = (e: KeyboardEvent): void => {
-    if (isTyping()) return;
+    // Holding a toggle key shouldn't flicker it.
+    if (isTyping() || e.repeat) return;
 
     switch (e.code) {
       case 'Space':

@@ -18,22 +18,32 @@ export default class Barrel {
   rotateDirection = 0;
   bullets: Bullet[] = [];
   private lastShot = 0;
+  // The key that starts the game shouldn't keep firing while it is held.
+  private fireKeyArmed = true;
 
   constructor(readonly canvas: Canvas, readonly turret: Turret, readonly state: GameState, readonly sound: Sound) {
     window.addEventListener('keydown', this.handleKey);
+    window.addEventListener('keyup', this.handleKeyUp);
     this.canvas.element.addEventListener('pointerdown', this.handlePointer);
   }
 
   // Handle aiming and shooting with the keys.
   handleKey = (e: KeyboardEvent): void => {
+    if (isTyping() || this.state.paused) return;
+
     // On the title screen, the overlay handles the keys.
-    if (isTyping() || this.state.paused || this.state.phase === 'title') return;
+    if (this.state.phase === 'title') {
+      this.fireKeyArmed = false;
+      return;
+    }
 
     switch (e.code) {
       case 'Space':
       case 'ArrowUp':
         e.preventDefault();
-        this.fire();
+        if (this.fireKeyArmed) {
+          this.fire();
+        }
         break;
 
       case 'ArrowLeft':
@@ -50,6 +60,12 @@ export default class Barrel {
         e.preventDefault();
         this.rotateDirection = 0;
         break;
+    }
+  }
+
+  handleKeyUp = (e: KeyboardEvent): void => {
+    if (e.code === 'Space' || e.code === 'ArrowUp') {
+      this.fireKeyArmed = true;
     }
   }
 

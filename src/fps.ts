@@ -11,7 +11,7 @@ export default class FPS {
 
   constructor(readonly canvas: Canvas) {
     window.addEventListener('keydown', (e) => {
-      if (e.code === 'KeyF' && !isTyping()) {
+      if (e.code === 'KeyF' && !e.repeat && !isTyping()) {
         this.visible = !this.visible;
       }
     });
