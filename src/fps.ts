@@ -26,7 +26,7 @@ export default class FPS {
     }
 
     if (this.visible) {
-      this.canvas.text(`FPS:${this.fps}`, this.canvas.width - 20, this.canvas.height - 60, 48, 'right');
+      this.canvas.text(`FPS:${this.fps}`, this.canvas.width - 20, 20, 40, 'right');
     }
   }
 

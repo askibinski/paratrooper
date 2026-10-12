@@ -113,6 +113,7 @@ export default class TrooperController {
     trooper.isGone = true;
     this.score.add(TrooperController.POINTS);
     this.effects.splat(trooper.x, trooper.y + Paratrooper.HEIGHT / 2);
+    this.effects.popup(trooper.x, trooper.y - 20, `+${TrooperController.POINTS}`);
     if (playSound) {
       this.sound.splat();
     }

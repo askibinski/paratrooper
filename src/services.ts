@@ -45,8 +45,8 @@ export default (): Container<ServiceMap> => {
   container.singleton('state', GameState);
   container.singleton('sound', Sound);
   container.singleton('effects', Effects, ['canvas']);
-  container.singleton('score', Score, ['canvas']);
   container.singleton('highscores', Highscores);
+  container.singleton('score', Score, ['canvas', 'highscores']);
   container.singleton('turret', Turret, ['canvas', 'state', 'effects', 'sound']);
   container.singleton('barrel', Barrel, ['canvas', 'turret', 'state', 'sound']);
   container.singleton('flightController', FlightController, ['canvas', 'state', 'turret', 'sound']);

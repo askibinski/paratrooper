@@ -70,6 +70,7 @@ export default class Bullet {
 
     bomb.isGone = true;
     this.effects.explode(bomb.x, bomb.y, { count: 20, speed: 5, size: 6, life: 40 });
+    this.effects.popup(bomb.x, bomb.y, `+${Bullet.POINTS_BOMB}`);
     this.sound.explosion();
     this.score.add(Bullet.POINTS_BOMB);
     return true;
@@ -81,7 +82,10 @@ export default class Bullet {
 
     jet.isGone = true;
     const b = jet.bounds();
-    this.effects.explode((b.left + b.right) / 2, (b.top + b.bottom) / 2, { count: 40, speed: 8, size: 10, life: 70 });
+    const centerX = (b.left + b.right) / 2;
+    const centerY = (b.top + b.bottom) / 2;
+    this.effects.explode(centerX, centerY, { count: 40, speed: 8, size: 10, life: 70 });
+    this.effects.popup(centerX, centerY + 40, `+${Bullet.POINTS_JET}`);
     this.sound.explosion();
     this.score.add(Bullet.POINTS_JET);
     return true;
@@ -92,6 +96,8 @@ export default class Bullet {
     if (!heli) return false;
 
     heli.isExploding = true;
+    this.effects.explode(heli.centerX, heli.startY, { count: 15, speed: 5, size: 6, life: 40 });
+    this.effects.popup(heli.centerX, heli.startY + 50, `+${Bullet.POINTS_HELI}`);
     this.sound.explosion();
     this.score.add(Bullet.POINTS_HELI);
     return true;

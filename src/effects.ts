@@ -11,6 +11,13 @@ interface Particle {
   color: string;
 }
 
+interface Popup {
+  x: number;
+  y: number;
+  text: string;
+  life: number;
+}
+
 interface ExplosionOptions {
   count?: number;
   speed?: number;
@@ -23,8 +30,10 @@ interface ExplosionOptions {
 export default class Effects {
 
   static readonly GRAVITY = 0.2;
+  static readonly POPUP_LIFE = 50;
 
   particles: Particle[] = [];
+  popups: Popup[] = [];
 
   constructor(readonly canvas: Canvas) { }
 
@@ -59,8 +68,14 @@ export default class Effects {
     this.explode(x, y, { count: 14, speed: 3, size: 6, life: 45, colors: [Canvas.PINK, Canvas.WHITE] });
   }
 
+  // A floating text, e.g. the points scored.
+  popup = (x: number, y: number, text: string): void => {
+    this.popups.push({ x, y, text, life: Effects.POPUP_LIFE });
+  }
+
   reset = (): void => {
     this.particles = [];
+    this.popups = [];
   }
 
   run = (): void => {
@@ -84,9 +99,17 @@ export default class Effects {
       ctx.fillStyle = p.color;
       ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
     });
+
+    this.popups.forEach((popup) => {
+      popup.y -= 1.5;
+      popup.life--;
+      ctx.globalAlpha = Math.max(0, popup.life / Effects.POPUP_LIFE);
+      this.canvas.text(popup.text, popup.x, popup.y, 40, 'center', Canvas.WHITE, 'middle');
+    });
     ctx.restore();
 
     this.particles = this.particles.filter((p) => p.life > 0);
+    this.popups = this.popups.filter((popup) => popup.life > 0);
   }
 
 }
