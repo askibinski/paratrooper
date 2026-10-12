@@ -4,21 +4,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A browser recreation of the classic 1982 DOS game Paratrooper.">
   <title>Paratrooper</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 8a6 6 0 0 1 12 0z' fill='%2356faf7'/%3E%3Cpath d='M3 8l5 5 5-5' stroke='%23fe52fc' fill='none'/%3E%3Crect x='7' y='12' width='2' height='4' fill='%23fff'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./styles/base.css">
 </head>
 
 <body>
-  <div class="canvasWrap">
-    <div id="highscores" class="highscoreWrap"></div>
-    <canvas width="1600" height="1200" id="paratrooper"></canvas>
-    <div class="buttons">
-      <button id="instructions">Pause / Instructions</button>
-      <button id="restart">Restart</button>
-      <a class="button" href="https://github.com/askibinski/paratrooper" target="_blank">Github</a>
+  <main class="canvasWrap">
+    <div class="stage">
+      <canvas width="1600" height="1200" id="paratrooper" aria-label="Paratrooper game"></canvas>
+      <div id="highscores" class="highscoreWrap"></div>
     </div>
-  </div>
-  <script type="module" src="/src/index.ts"></script>
+    <div class="buttons">
+      <button id="instructions" type="button">Pause / Instructions</button>
+      <button id="restart" type="button">Restart</button>
+      <button id="sound" type="button">Sound: on</button>
+      <a class="button" href="https://github.com/askibinski/paratrooper" target="_blank" rel="noopener">Github</a>
+    </div>
+  </main>
+  <script type="module" src="./src/index.ts"></script>
 </body>
 
 </html>

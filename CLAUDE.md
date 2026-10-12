@@ -24,9 +24,13 @@
 - `dist/`: Compiled JS output (generated)
 - `styles/`: CSS files
 - `.env.example`: Example environment variables (copy to .env.local for local settings)
-- Classes are organized by game component (canvas, barrel, turret, etc.)
+- Classes are organized by game component (canvas, barrel, turret, heli, jet, bomb, etc.)
+- `src/services.ts`: registers every component in the DI container (typed by `ServiceMap`)
+- `src/game-state.ts`: game phase (playing, assault, destroyed, over) and pause state
 
 ## Code Organization
 - Game is structured as a component-based system with dependency injection
-- State management is handled within each component
+- State management is handled within each component; the global game phase lives in `GameState`
+- Entities (helis, jets, bombs, troopers, bullets) are kept in arrays and filtered on `isGone` after each frame (never splice during iteration)
+- Sounds are synthesized with the Web Audio API (`src/sound.ts`), no audio files
 - Highscores are stored in localStorage (previously used Firebase)

@@ -28,11 +28,15 @@ body {
 }
 
 canvas {
+  display: block;
   border: 1px solid black;
-  /* Set the width and height to half the actual size so it doesn't look pixelated */
-  width: 800px;
-  height: 600px;
-  background: white;
+  /* The canvas is rendered at twice the display size, so it stays sharp. */
+  width: min(800px, calc(100vw - 32px));
+  height: auto;
+  aspect-ratio: 4 / 3;
+  background: black;
+  touch-action: manipulation;
+  user-select: none;
 }
 
 canvas.shake {
@@ -63,23 +67,24 @@ canvas.shake {
   }
 }
 
-/* Helper Divs */
-
-.wrapper {
-  max-width: 1000px;
-  margin: 4rem auto;
-  padding: 2rem;
-  background: white;
+.canvasWrap {
+  padding: 16px 0;
 }
 
-.box, .wrapper {
-  box-shadow: 0 0 3px 5px rgba(0,0,0,0.08653);
+.stage {
+  position: relative;
 }
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
 a {
   color: var(--blue);
-  text-decoration-color: var(--yellow);
 }
-
 
 a.button, button, input[type="button"], input[type="submit"] {
   display: inline-block;
@@ -87,107 +92,78 @@ a.button, button, input[type="button"], input[type="submit"] {
   color: white;
   background: var(--pink);
   padding: 1rem;
-  border: 0;
   border: 2px solid transparent;
   text-decoration: none;
   font-weight: 600;
-  font-size:2rem;
-}
-
-button:hover {
+  font-size: 2rem;
   cursor: pointer;
 }
 
-:focus {
+:focus-visible {
+  outline: none;
   box-shadow: 0 0 15px var(--blue);
 }
 
-fieldset {
-  border: 1px solid black;
-}
-
-input {
-  transition: all 0.30s ease-in-out;
-}
-
-input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]), textarea, select {
+input[type="text"] {
   padding: 1rem;
+  border: 2px solid var(--blue);
+  font-family: Courier, monospace;
 }
 
-.success {
-  border: 1px solid red;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  color: white;
-  margin-top: 0;
-  line-height: 1;
-  text-shadow: var(--text-shadow);
-}
-.wrapper h1,
-.wrapper h2,
-.wrapper h3,
-.wrapper h4,
-.wrapper h5,
-.wrapper h6 {
-  color: var(--black);
-  text-shadow: none;
-}
-
+/* The highscore form and table are layered on top of the canvas. */
 .highscoreWrap {
-  position: relative;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  color: white;
+  font-family: Courier, monospace;
+  text-align: center;
 }
 
-.highscoreWrap form {
-  position: absolute;
-  top: 267px;
-  left: 0;
+.highscoreWrap > * {
+  pointer-events: auto;
+  max-width: 90%;
+}
+
+.highscoreWrap p {
+  margin: 0 0 1rem;
+}
+
+.highscoreWrap form p {
+  font-size: 2.6rem;
+  font-weight: bold;
+}
+
+.highscoreTable table {
   width: 100%;
-  text-align: center
+  min-width: min(500px, 80vw);
+  border-collapse: collapse;
+  margin-bottom: 1rem;
 }
 
-.highscoreWrap form input {
-  display: inline-block;
+.highscoreTable caption {
+  font-size: 2.6rem;
+  font-weight: bold;
+  padding-bottom: 0.5rem;
+  color: var(--blue);
 }
 
-.highscoreWrap table {
-  position: absolute;
-  width: 700px;
-  top: 50px;
-  left: 50px;
-  text-align: center;
-  color: #ffffff;
+.highscoreTable td {
+  border: 1px solid white;
+  padding: 0.3em 0.5em;
 }
 
-.highscoreWrap table {
-  position: absolute;
-  width: 700px;
-  top: 50px;
-  left: 50px;
-  text-align: center;
-  color: #ffffff;
-}
-
-.highscoreWrap table td:nth-child(2) {
+.highscoreTable td:nth-child(2) {
   max-width: 300px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* Table Styles */
-
-table {
-  overflow: hidden;
-  border-collapse: collapse;
-}
-
-td, th {
-  border: 1px solid #ffffff;
-  padding: 0.5em;
+.highscoreTable tr.highlight {
+  color: black;
+  background: var(--blue);
 }

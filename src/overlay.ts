@@ -1,146 +1,189 @@
 import Canvas from "./canvas";
+import GameState from "./game-state";
 import Highscores from "./highscores";
-import TrooperController from "./trooper-controller";
-import FlightController from "./flight-controller";
 import Score from "./score";
+import Sound from "./sound";
+import { isTyping } from "./utils";
 
+// Pause screen, game over screen and highscores.
 export default class Overlay {
 
-  gameOver: boolean;
-  table: HTMLTableElement;
-  form: HTMLFormElement;
-  wrapper: HTMLElement;
-  timer: number;
+  // Frames the explosion plays before the game over screen.
+  static readonly EXPLOSION_FRAMES = 150;
+  // Frames "GAME OVER" is shown before the highscore form.
+  static readonly GAME_OVER_FRAMES = 120;
 
-  constructor(readonly canvas: Canvas, readonly trooperController: TrooperController, readonly flightController: FlightController, readonly highscores: Highscores, readonly score: Score) {
-    this.gameOver = false;
-    this.timer = 0;
-    this.wrapper = document.getElementById("highscores");
+  static readonly INSTRUCTIONS = [
+    'LEFT/RIGHT  aim',
+    'UP/SPACE    shoot (costs 1 point)',
+    'DOWN        stop turning',
+    'P/ESC       pause    M  sound',
+    '',
+    'Helicopter 10 · Jet 10 · Bomb 30',
+    'Trooper 5 · Shoot a chute and he falls,',
+    'taking anyone below him along.',
+    '',
+    'If 4 troopers land on one side,',
+    'they storm the turret. Bombs too.',
+    '',
+    'Touch: tap left/right to aim,',
+    'the middle to shoot.',
+  ];
 
-    document.querySelector('#instructions').addEventListener('click', () => { alert("Use keyboard arrow keys left/right to aim and up/spacebar to shoot.\n\nYou lose when 4 troopers land on either side of the turret.\n\nThis game does not work on mobile. We didn't have mobiles in 1982.") });
+  private wrapper: HTMLElement;
+  private form: HTMLFormElement | null = null;
+  private table: HTMLElement | null = null;
 
-    document.querySelector('#restart').addEventListener('click', this.restart);
+  constructor(readonly canvas: Canvas, readonly state: GameState, readonly highscores: Highscores, readonly score: Score, readonly sound: Sound) {
+    this.wrapper = document.getElementById('highscores') ?? document.body;
 
-    // if (!this.showHighScores) {
-    //   this.drawHighScores();
-    //   this.showHighScores = true;
-    // }
+    this.bindButton('#instructions', this.togglePause);
+    this.bindButton('#restart', () => window.game.restart());
+
+    window.addEventListener('keydown', this.handleKey);
+    // Pause when the player switches tabs.
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && this.state.phase !== 'over') {
+        this.state.paused = true;
+      }
+    });
+  }
+
+  bindButton = (selector: string, callback: () => void): void => {
+    const button = document.querySelector<HTMLButtonElement>(selector);
+    button?.addEventListener('click', () => {
+      callback();
+      // Otherwise the space bar would "click" the button again.
+      button.blur();
+    });
+  }
+
+  handleKey = (e: KeyboardEvent): void => {
+    if (isTyping()) return;
+
+    switch (e.code) {
+      case 'KeyP':
+      case 'Escape':
+        this.togglePause();
+        break;
+      case 'KeyR':
+        if (this.state.phase === 'over') {
+          window.game.restart();
+        }
+        break;
+    }
+  }
+
+  togglePause = (): void => {
+    if (this.state.phase === 'over') return;
+    this.state.paused = !this.state.paused;
   }
 
   reset = (): void => {
-    this.form = undefined;
-    this.table = undefined;
-    this.gameOver = false;
-    this.timer = 0;
-    this.wrapper.innerHTML = '';
-    this.canvas.ctx.globalAlpha = 1;
-    this.highscores.highscoreSaved = false;
+    this.form = null;
+    this.table = null;
+    this.wrapper.replaceChildren();
   }
 
   run = (): void => {
-    if (this.gameOver) {
+    if (this.state.phase === 'destroyed' && this.state.phaseFrames >= Overlay.EXPLOSION_FRAMES) {
+      this.state.setPhase('over');
+      this.sound.gameOver();
+    }
+
+    if (this.state.phase === 'over') {
       this.drawGameOver();
     }
-
-    // If 4 troopers land on either side of the turret, it's game over!
-    // @TODO make the troopers walk to the turret, climb it and explode.
-    if (this.trooperController.troopersLandedLeft.length >= 4 || this.trooperController.troopersLandedRight.length >= 4) {
-      this.flightController.showNewHelis = false;
-      this.gameOverStatus = true;
-    }
   }
 
-  set gameOverStatus(status: boolean) {
-    this.gameOver = status;
+  dim = (alpha: number): void => {
+    const ctx = this.canvas.ctx;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = Canvas.BLACK;
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    ctx.restore();
   }
 
-  restart = (): void => {
-    this.reset();
-    // Clear all troopers.
-    this.trooperController.reset();
-    // Let the helis fly again.
-    this.flightController.reset();
-    // Clear score.
-    this.score.score = 0;
-  }
-
-  drawGrayOverlay = (): void => {
-    this.canvas.ctx.fillStyle = Canvas.BLACK;
-    this.canvas.ctx.globalAlpha = 0.65;
-    this.canvas.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+  // Drawn once on top of the frozen game.
+  drawPause = (): void => {
+    this.dim(0.8);
+    const { centerX } = this.canvas;
+    this.canvas.text('PAUSED', centerX, 80, 128, 'center', Canvas.PINK);
+    // Left aligned, so the (monospace) columns line up.
+    Overlay.INSTRUCTIONS.forEach((line, i) => {
+      this.canvas.text(line, 340, 260 + i * 56, 44);
+    });
+    this.canvas.text('Press P to continue', centerX, this.canvas.height - 130, 48, 'center', Canvas.BLUE);
   }
 
   drawGameOver = (): void => {
-    this.canvas.ctx.fillStyle = Canvas.WHITE;
-    this.canvas.ctx.font = "256px Courier";
-    this.canvas.ctx.textAlign = "center"
-    this.canvas.ctx.textBaseline = "middle";
-    this.canvas.ctx.fillText(`GAME OVER`, this.canvas.width / 2, this.canvas.height / 2);
-
-    this.timer++;
-
-    if (this.timer >= 180) {
-      this.drawGrayOverlay();
+    const showHighscores = this.state.phaseFrames >= Overlay.GAME_OVER_FRAMES;
+    if (showHighscores) {
+      this.dim(0.65);
+    }
+    else {
+      this.canvas.text('GAME OVER', this.canvas.centerX, this.canvas.height / 2, 256, 'center', Canvas.WHITE, 'middle');
     }
 
-    if (!this.form && !this.table && this.timer >= 180) {
-      this.form = document.createElement('form');
-      const input = document.createElement('input');
-      input.setAttribute('type', 'text');
-      input.setAttribute('placeholder', 'Your Name');
-      const submit = document.createElement('input');
-      submit.setAttribute('type', 'submit');
-      this.form.appendChild(input);
-      input.insertAdjacentElement("afterend", submit);
-      this.wrapper.appendChild(this.form);
-      input.focus();
-      submit.addEventListener('click', this.highscores.writeHighscore);
-    }
-
-    if (this.highscores.highscoreSaved && !this.table && this.form) {
-      this.form.remove();
-      this.drawHighScores();
+    if (showHighscores && !this.form && !this.table) {
+      this.showForm();
     }
   }
 
-  drawHighScores = (): void => {
-    this.highscores.getHighScores()
-      .then(snapshot => {
-        this.table = document.createElement('table');
-        let i = 1;
-        snapshot.forEach(doc => {
-          let tr = document.createElement('tr');
-          let td1 = document.createElement('td');
-          let td2 = document.createElement('td');
-          let td3 = document.createElement('td');
-          td1.innerHTML = <string><any>i;
-          
-          // Safely handle potential undefined values
-          const data = doc.data();
-          td2.innerHTML = data?.name || 'Unknown';
-          td3.innerHTML = data?.score?.toString() || '0';
-          
-          tr.appendChild(td1);
-          tr.appendChild(td2);
-          tr.appendChild(td3);
-          this.table.appendChild(tr);
-          i++;
-        });
-        this.wrapper.appendChild(this.table);
-      })
-      .catch(
-        err => {
-          console.log('Error getting highscores', err);
-          // Create a fallback table to avoid breaking the UI
-          this.table = document.createElement('table');
-          const tr = document.createElement('tr');
-          const td = document.createElement('td');
-          td.innerHTML = 'No highscores available';
-          tr.appendChild(td);
-          this.table.appendChild(tr);
-          this.wrapper.appendChild(this.table);
-        }
-      );
+  showForm = (): void => {
+    this.form = document.createElement('form');
+
+    const label = document.createElement('p');
+    label.textContent = `GAME OVER - SCORE: ${this.score.score}`;
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Your name';
+    input.maxLength = Highscores.MAX_NAME_LENGTH;
+    input.setAttribute('aria-label', 'Your name');
+
+    const submit = document.createElement('input');
+    submit.type = 'submit';
+    submit.value = 'Save';
+
+    this.form.append(label, input, submit);
+    this.form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const position = this.highscores.save(input.value, this.score.score);
+      this.form?.remove();
+      this.showHighscores(position);
+    });
+
+    this.wrapper.appendChild(this.form);
+    input.focus();
+  }
+
+  showHighscores = (highlight: number): void => {
+    const container = document.createElement('div');
+    container.className = 'highscoreTable';
+
+    const table = document.createElement('table');
+    const caption = table.createCaption();
+    caption.textContent = 'HIGHSCORES';
+
+    this.highscores.load().forEach((entry, i) => {
+      const row = table.insertRow();
+      if (i === highlight) {
+        row.className = 'highlight';
+      }
+      [`${i + 1}`, entry.name, `${entry.score}`].forEach((value) => {
+        // textContent, so names can't inject HTML.
+        row.insertCell().textContent = value;
+      });
+    });
+
+    const hint = document.createElement('p');
+    hint.textContent = 'Press R to play again';
+
+    container.append(table, hint);
+    this.table = container;
+    this.wrapper.appendChild(container);
   }
 
 }
