@@ -24,14 +24,15 @@ You lose when:
 | Every shot | -1 |
 
 Shoot a paratrooper's chute and he falls to his death, taking any troopers he lands on with him.
+
 Falling debris from a helicopter you shot down also kills any troopers below it.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js (v14 or higher)
-- npm (v6 or higher)
+- Node.js (v18 or higher, required by Vite 5)
+- npm (comes with Node.js)
 
 ### Installation
 
