@@ -2,6 +2,7 @@ import Canvas from "./canvas";
 import TrooperController from "./trooper-controller";
 import GameState from "./game-state";
 import Turret from "./turret";
+import Paratrooper from "./paratrooper";
 import { Bounds, getRndInteger, shuffle } from "./utils";
 
 // The parts of a heli, drawn back to front. When the heli explodes, every
@@ -37,6 +38,8 @@ export default class Heli {
   static readonly HIT_HEIGHT = 30;
   // Frames after which all exploding parts have fallen off canvas.
   static readonly EXPLOSION_FRAMES = 60;
+  // Horizontal reach of the falling debris, measured from the heli center.
+  static readonly DEBRIS_RADIUS = 60;
 
   // 1: flies from right to left. -1: flies from left to right (mirrored).
   direction = 1;
@@ -53,6 +56,8 @@ export default class Heli {
   frame = 0;
   frameSinceExplosion = 0;
   isGone = false;
+  // How far the debris had fallen in the previous frame.
+  private lastDebrisY = 0;
 
   // "explode" multipliers. These are used to change the direction and speed
   // of the falling parts in a random way. One for every part.
@@ -92,6 +97,9 @@ export default class Heli {
     if (this.isExploding && this.frame % 2 === 0) {
       this.frameSinceExplosion++;
     }
+    if (this.isExploding) {
+      this.hitWithDebris();
+    }
 
     this.draw();
 
@@ -129,6 +137,22 @@ export default class Heli {
     this.trooperController.createTrooper(x, this.startY + 40);
     this.troopersDropped++;
     this.dropCooldown = Heli.DROP_COOLDOWN;
+  }
+
+  // Like in the original, falling debris kills troopers below the heli.
+  hitWithDebris = (): void => {
+    const debrisY = this.startY + this.frameSinceExplosion * this.frameSinceExplosion;
+    const fromY = this.lastDebrisY || this.startY;
+    this.lastDebrisY = debrisY;
+
+    this.trooperController.troopers
+      .filter((trooper) => !trooper.isGone
+        && trooper.state !== 'assault'
+        && Math.abs(trooper.x - this.centerX) <= Heli.DEBRIS_RADIUS
+        // The debris passed the trooper since the previous frame.
+        && trooper.y <= debrisY
+        && trooper.y + Paratrooper.HEIGHT >= fromY)
+      .forEach((trooper) => this.trooperController.kill(trooper));
   }
 
   draw = (): void => {

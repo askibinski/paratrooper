@@ -24,6 +24,7 @@ You lose when:
 | Every shot | -1 |
 
 Shoot a paratrooper's chute and he falls to his death, taking any troopers he lands on with him.
+Falling debris from a helicopter you shot down also kills any troopers below it.
 
 ## Getting Started
 
