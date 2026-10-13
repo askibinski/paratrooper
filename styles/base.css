@@ -27,6 +27,17 @@ body {
   background: white;
 }
 
+/* The title is drawn on the canvas; this one is for screen readers. */
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 canvas {
   display: block;
   border: 1px solid black;
@@ -166,4 +177,19 @@ input[type="text"] {
 .highscoreTable tr.highlight {
   color: black;
   background: var(--blue);
+}
+
+/* Embedded in an iframe: the host page provides the surroundings. */
+.embedded body {
+  min-height: 0;
+  background: black;
+}
+
+.embedded .canvasWrap {
+  padding: 0;
+}
+
+.embedded canvas {
+  width: min(800px, 100vw);
+  border: 0;
 }

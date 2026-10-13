@@ -3,12 +3,36 @@ import FlightController from "./flight-controller";
 import GameState from "./game-state";
 import { Bounds, getRndInteger } from "./utils";
 
+// The jet of the original game as a pixel sprite, facing left: an outlined
+// fuselage and tail fin, a white nose, a stripe and two exhaust sparks.
+const JET_SPRITE = [
+  '.......................CCCC',
+  '......................C..C.',
+  '.....................C...C.',
+  '....................C....C.',
+  '........WWWW.......C.....C.',
+  '.....WWWWWWWCCCCCCC......C.',
+  '...WWWWWWW...............CP',
+  '..CWWW.......PPPPPPP.....C.',
+  '..C.....................C.P',
+  '...CCCCCCCCCCCCCCCCCCCCC...',
+];
+
+const JET_COLORS: Record<string, string> = {
+  C: Canvas.BLUE,
+  W: Canvas.WHITE,
+  P: Canvas.PINK,
+};
+
 // Jets fly high and fast, and drop a bomb aimed at the turret.
 export default class Jet {
 
   static readonly SPEED = 8;
   static readonly ALTITUDE = 45;
-  static readonly LENGTH = 132;
+  // Size of one sprite pixel on the canvas.
+  static readonly PIXEL_SIZE = 5;
+  static readonly LENGTH = JET_SPRITE[0].length * Jet.PIXEL_SIZE;
+  static readonly HEIGHT = JET_SPRITE.length * Jet.PIXEL_SIZE;
   static readonly START_CANVAS_OFFSET = 150;
   // Horizontal distance from the turret in which the bomb is released.
   static readonly DROP_MAX_DISTANCE = 650;
@@ -30,7 +54,7 @@ export default class Jet {
 
   bounds = (): Bounds => {
     const left = this.direction === 1 ? this.x : this.x - Jet.LENGTH;
-    return { left, right: left + Jet.LENGTH, top: this.y - 35, bottom: this.y + 30 };
+    return { left, right: left + Jet.LENGTH, top: this.y - Jet.HEIGHT / 2, bottom: this.y + Jet.HEIGHT / 2 };
   }
 
   run = (): void => {
@@ -59,50 +83,29 @@ export default class Jet {
 
   draw = (): void => {
     const ctx = this.canvas.ctx;
-    const { x, y } = this;
+    const size = Jet.PIXEL_SIZE;
+    const top = this.y - (JET_SPRITE.length * size) / 2;
 
     // Drawn facing left; mirrored for jets coming from the left.
     ctx.save();
     if (this.direction === -1) {
-      ctx.translate(x, y);
+      ctx.translate(this.x, 0);
       ctx.scale(-1, 1);
-      ctx.translate(-x, -y);
+      ctx.translate(-this.x, 0);
     }
 
-    // Tail fin.
-    ctx.fillStyle = Canvas.PINK;
-    ctx.beginPath();
-    ctx.moveTo(x + 95, y - 9);
-    ctx.lineTo(x + 120, y - 35);
-    ctx.lineTo(x + 132, y - 35);
-    ctx.lineTo(x + 124, y - 9);
-    ctx.closePath();
-    ctx.fill();
+    JET_SPRITE.forEach((row, rowIndex) => {
+      // Draw every run of the same color as one rectangle.
+      for (let col = 0; col < row.length; col++) {
+        const color = JET_COLORS[row[col]];
+        if (!color) continue;
 
-    // Fuselage.
-    ctx.fillStyle = Canvas.WHITE;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x + 25, y - 9);
-    ctx.lineTo(x + 124, y - 9);
-    ctx.lineTo(x + 128, y + 9);
-    ctx.lineTo(x + 25, y + 9);
-    ctx.closePath();
-    ctx.fill();
-
-    // Cockpit.
-    ctx.fillStyle = Canvas.BLUE;
-    ctx.fillRect(x + 20, y - 7, 18, 6);
-
-    // Wing.
-    ctx.fillStyle = Canvas.BLUE;
-    ctx.beginPath();
-    ctx.moveTo(x + 45, y + 3);
-    ctx.lineTo(x + 90, y + 3);
-    ctx.lineTo(x + 65, y + 30);
-    ctx.lineTo(x + 48, y + 30);
-    ctx.closePath();
-    ctx.fill();
+        const runStart = col;
+        while (row[col + 1] === row[runStart]) col++;
+        ctx.fillStyle = color;
+        ctx.fillRect(this.x + runStart * size, top + rowIndex * size, (col - runStart + 1) * size, size);
+      }
+    });
 
     ctx.restore();
   }
