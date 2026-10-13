@@ -26,7 +26,7 @@
 - `.env.example`: Example environment variables (copy to .env.local for local settings)
 - Classes are organized by game component (canvas, barrel, turret, heli, jet, bomb, etc.)
 - `src/services.ts`: registers every component in the DI container (typed by `ServiceMap`)
-- `src/game-state.ts`: game phase (playing, assault, destroyed, over) and pause state
+- `src/game-state.ts`: game phase (title, playing, assault, destroyed, over) and pause state
 
 ## Code Organization
 - Game is structured as a component-based system with dependency injection
