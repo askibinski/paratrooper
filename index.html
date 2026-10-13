@@ -8,10 +8,15 @@
   <title>Paratrooper</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 8a6 6 0 0 1 12 0z' fill='%2356faf7'/%3E%3Cpath d='M3 8l5 5 5-5' stroke='%23fe52fc' fill='none'/%3E%3Crect x='7' y='12' width='2' height='4' fill='%23fff'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./styles/base.css">
+  <script>
+    // Embedded in another page (iframe): blend in with a dark, compact layout.
+    if (window.self !== window.top) document.documentElement.classList.add('embedded');
+  </script>
 </head>
 
 <body>
   <main class="canvasWrap">
+    <h1 class="visuallyHidden">Paratrooper</h1>
     <div class="stage">
       <canvas width="1600" height="1200" id="paratrooper" aria-label="Paratrooper game"></canvas>
       <div id="highscores" class="highscoreWrap"></div>
