@@ -1,161 +1,178 @@
-import Canvas from "./canvas.js";
-import Turret from "./turret.js";
-import TrooperController from "./trooper-controller.js";
-import Score from "./score.js";
+import Canvas from "./canvas";
+import TrooperController from "./trooper-controller";
+import { Bounds, getRndInteger } from "./utils";
+
+// falling: in the air. landed: on the ground (or on top of other troopers).
+// assault: storming the turret.
+export type TrooperState = 'falling' | 'landed' | 'assault';
+// packed: not deployed (yet). open: floating down. shot: bad luck.
+export type ChuteState = 'packed' | 'open' | 'shot';
+
+interface Waypoint {
+  x: number;
+  y: number;
+}
 
 export default class Paratrooper {
 
+  static readonly HEAD_SIZE = 12;
+  static readonly WIDTH = 2 * Paratrooper.HEAD_SIZE;
+  static readonly HEIGHT = 4 * Paratrooper.HEAD_SIZE;
   static readonly CHUTE_RADIUS = 30;
   static readonly CHUTE_LINE_WIDTH = 5;
-  static readonly TROOPER_HEAD_SIZE = 12;
-  static readonly JUMP_Y_OFFSET = 50;
-  static readonly FALL_SPEED = 1;
+  // Distance between the top of the head and the canopy.
+  static readonly CHUTE_OFFSET = 48;
+  static readonly CHUTE_FALL_SPEED = 1;
+  static readonly FREE_FALL_SPEED = 4;
+  static readonly SETTLE_SPEED = 4;
+  static readonly WALK_SPEED = 2;
 
-  isGone: boolean;
-  deployedChute: boolean;
-  hasChute: boolean;
-  hasLanded: boolean;
-  readyForAction: boolean;
-  troopersLandedHere: Paratrooper[];
-  x: number;
-  y: number;
+  // x is the center of the trooper, y the top of the head.
+  x = 0;
+  y = 0;
+  state: TrooperState = 'falling';
+  chute: ChuteState = 'packed';
+  // Used to know who is standing on whom.
+  landOrder = 0;
+  waypoints: Waypoint[] = [];
+  isGone = false;
+  // Frames of free fall before the chute opens.
+  private deployDelay = getRndInteger(10, 60);
 
-  constructor(readonly canvas: Canvas, readonly trooperController: TrooperController, readonly score: Score) {
-    this.isGone = false;
-    this.deployedChute = false;
-    this.hasChute = true;
-    this.hasLanded = false;
-    this.readyForAction = false;
-    this.x = 0;
-    this.y = 0;
-    this.troopersLandedHere = [];
+  constructor(readonly canvas: Canvas, readonly trooperController: TrooperController) { }
+
+  bodyBounds = (): Bounds => {
+    return {
+      left: this.x - Paratrooper.WIDTH / 2,
+      right: this.x + Paratrooper.WIDTH / 2,
+      top: this.y,
+      bottom: this.y + Paratrooper.HEIGHT,
+    };
   }
 
-  set jumpCoordinates(coordinates: { x: number, y: number }) {
-    const { x, y } = coordinates;
-    this.x = x;
-    this.y = y;
-    // We need to stack troopers if they land on the same spot.
-    this.trooperController.troopers.forEach((trooper) => {
-      if (trooper.x == this.x) {
-        this.troopersLandedHere.push(trooper);
-      }
-    });
+  chuteBounds = (): Bounds => {
+    const canopy = this.y - Paratrooper.CHUTE_OFFSET;
+    return {
+      left: this.x - Paratrooper.CHUTE_RADIUS,
+      right: this.x + Paratrooper.CHUTE_RADIUS,
+      top: canopy - Paratrooper.CHUTE_RADIUS,
+      bottom: canopy + Paratrooper.CHUTE_RADIUS / 2,
+    };
   }
 
-  run = (): void => {
-    // Each framerun, there is a 2% chance a trooper will deploy his chute.
-    // The higher this is, the more likely a chute will be deployed, making
-    // it easier to shoot them down.
-    if (this.canvas.getRndInteger(1, 50) === 1) {
-      this.deployedChute = true;
+  update = (): void => {
+    switch (this.state) {
+      case 'falling':
+        this.fall();
+        break;
+      case 'landed':
+        this.settle();
+        break;
+      case 'assault':
+        // Marching is coordinated by the trooper controller.
+        break;
+    }
+  }
+
+  fall = (): void => {
+    if (this.chute === 'packed' && --this.deployDelay <= 0) {
+      this.chute = 'open';
     }
 
-    this.trooper();
-    if (this.deployedChute && this.hasChute) {
-      this.parachute();
-    }
-    let fallSpeed = Paratrooper.FALL_SPEED;
     // Obviously, because of Newton, a trooper falls faster without a chute.
-    // There are 2 scenarios: he didn't deloy yet, or the poor bastard got
+    // There are 2 scenarios: he didn't deploy yet, or the poor bastard got
     // his chute shot down (which by the way is not against the convention
-    // of Geneva apparantly: https://en.wikipedia.org/wiki/Attacks_on_parachutists
-    if ((this.hasChute && !this.deployedChute) || (!this.hasChute && this.deployedChute)) {
-      fallSpeed = 4 * Paratrooper.FALL_SPEED;
+    // of Geneva apparently: https://en.wikipedia.org/wiki/Attacks_on_parachutists
+    const speed = this.chute === 'open' ? Paratrooper.CHUTE_FALL_SPEED : Paratrooper.FREE_FALL_SPEED;
+    const surface = this.trooperController.surfaceAt(this.x);
+
+    if (this.y + Paratrooper.HEIGHT + speed < surface) {
+      this.y += speed;
+      return;
     }
 
-    // They *can* stack!
-    if (this.y < this.canvas.height - Turret.SCORE_HEIGHT - (4 * Paratrooper.TROOPER_HEAD_SIZE) - ((this.troopersLandedHere.length + 1) * (4 * Paratrooper.TROOPER_HEAD_SIZE))) {
-      this.y = this.y + fallSpeed;
+    this.y = surface - Paratrooper.HEIGHT;
+    if (this.chute === 'open') {
+      this.trooperController.land(this);
     }
     else {
-      // Hitting the ground. Again we gave 2 options:
-      if (this.hasChute || this.hasLanded) {
-        // Phew. Safely landed.
-        this.hasChute = false;
-        this.hasLanded = true;
-      }
-      else {
-        // Oops...Let 'm sink into to the ground.
-        // @TODO death animation.
-        this.y = this.y + fallSpeed;
-        if (this.y > this.canvas.height - Turret.SCORE_HEIGHT - (4 * Paratrooper.TROOPER_HEAD_SIZE)) {
-          this.isGone = true;
-          this.score.add(5);
-        }
-        // The fall will also kill any other troopers at this spot.
-        if (this.troopersLandedHere.length > 0) {
-          this.troopersLandedHere.forEach((trooper) => {
-            trooper.isGone = true;
-          });
-        }
-      }
+      this.trooperController.crash(this);
+    }
+  }
+
+  // Troopers standing on someone who got shot drop down.
+  settle = (): void => {
+    const restingY = this.trooperController.restingY(this);
+    if (this.y < restingY) {
+      this.y = Math.min(restingY, this.y + Paratrooper.SETTLE_SPEED);
+    }
+  }
+
+  // Move towards the next waypoint: first horizontally, then vertically.
+  // Returns true when all waypoints are reached.
+  march = (): boolean => {
+    const waypoint = this.waypoints[0];
+    if (!waypoint) return true;
+
+    const step = (from: number, to: number): number => from + Math.sign(to - from) * Math.min(Paratrooper.WALK_SPEED, Math.abs(to - from));
+    if (this.x !== waypoint.x) {
+      this.x = step(this.x, waypoint.x);
+    }
+    else if (this.y !== waypoint.y) {
+      this.y = step(this.y, waypoint.y);
+    }
+    else {
+      this.waypoints.shift();
+    }
+    return this.waypoints.length === 0;
+  }
+
+  draw = (): void => {
+    this.trooper();
+    if (this.state === 'falling' && this.chute === 'open') {
+      this.parachute();
     }
   }
 
   parachute = (): void => {
-    // Left line.
-    this.canvas.ctx.strokeStyle = Canvas.PINK;
-    this.canvas.ctx.lineWidth = Paratrooper.CHUTE_LINE_WIDTH;
-    this.canvas.ctx.beginPath();
-    this.canvas.ctx.moveTo(this.x - (Paratrooper.CHUTE_RADIUS) + (Paratrooper.CHUTE_LINE_WIDTH / 2), this.y + Paratrooper.JUMP_Y_OFFSET - (4 * Paratrooper.TROOPER_HEAD_SIZE));
-    this.canvas.ctx.lineTo(this.x, this.y + Paratrooper.JUMP_Y_OFFSET + 50 - (4 * Paratrooper.TROOPER_HEAD_SIZE));
-    this.canvas.ctx.closePath();
-    this.canvas.ctx.stroke();
+    const ctx = this.canvas.ctx;
+    const canopy = this.y - Paratrooper.CHUTE_OFFSET;
+    const lineOffset = Paratrooper.CHUTE_RADIUS - (Paratrooper.CHUTE_LINE_WIDTH / 2);
 
-    // Right line.
-    this.canvas.ctx.strokeStyle = Canvas.PINK;
-    this.canvas.ctx.lineWidth = Paratrooper.CHUTE_LINE_WIDTH;
-    this.canvas.ctx.beginPath();
-    this.canvas.ctx.moveTo(this.x + (Paratrooper.CHUTE_RADIUS) - (Paratrooper.CHUTE_LINE_WIDTH / 2), this.y + Paratrooper.JUMP_Y_OFFSET - (4 * Paratrooper.TROOPER_HEAD_SIZE));
-    this.canvas.ctx.lineTo(this.x, this.y + Paratrooper.JUMP_Y_OFFSET + 50 - (4 * Paratrooper.TROOPER_HEAD_SIZE));
-    this.canvas.ctx.closePath();
-    this.canvas.ctx.stroke();
+    // Lines.
+    ctx.strokeStyle = Canvas.PINK;
+    ctx.lineWidth = Paratrooper.CHUTE_LINE_WIDTH;
+    ctx.beginPath();
+    ctx.moveTo(this.x - lineOffset, canopy);
+    ctx.lineTo(this.x, this.y + 2);
+    ctx.lineTo(this.x + lineOffset, canopy);
+    ctx.stroke();
 
     // The chute.
-    this.canvas.ctx.fillStyle = Canvas.BLUE;
-    this.canvas.ctx.beginPath();
-    this.canvas.ctx.arc(this.x, this.y + Paratrooper.JUMP_Y_OFFSET - (4 * Paratrooper.TROOPER_HEAD_SIZE), Paratrooper.CHUTE_RADIUS, 1 * Math.PI, 0);
-    this.canvas.ctx.fill();
+    ctx.fillStyle = Canvas.BLUE;
+    ctx.beginPath();
+    ctx.arc(this.x, canopy, Paratrooper.CHUTE_RADIUS, Math.PI, 0);
+    ctx.fill();
   }
 
   trooper = (): void => {
+    const ctx = this.canvas.ctx;
+    const h = Paratrooper.HEAD_SIZE;
+    const { x, y } = this;
+
     // Head.
-    this.canvas.ctx.fillStyle = Canvas.WHITE;
-    this.canvas.ctx.beginPath();
-    this.canvas.ctx.rect(this.x - (Paratrooper.TROOPER_HEAD_SIZE / 2), this.y + Paratrooper.JUMP_Y_OFFSET, Paratrooper.TROOPER_HEAD_SIZE, Paratrooper.TROOPER_HEAD_SIZE);
-    this.canvas.ctx.fill();
+    ctx.fillStyle = Canvas.WHITE;
+    ctx.fillRect(x - h / 2, y, h, h);
 
+    ctx.fillStyle = Canvas.BLUE;
     // Body.
-    this.canvas.ctx.fillStyle = Canvas.BLUE;
-    this.canvas.ctx.beginPath();
-    this.canvas.ctx.rect(this.x - (Paratrooper.TROOPER_HEAD_SIZE / 2), this.y + Paratrooper.JUMP_Y_OFFSET + Paratrooper.TROOPER_HEAD_SIZE, Paratrooper.TROOPER_HEAD_SIZE, 1.5 * Paratrooper.TROOPER_HEAD_SIZE);
-    this.canvas.ctx.fill();
-
-    // Right arm (left for the viewer).
-    this.canvas.ctx.fillStyle = Canvas.BLUE;
-    this.canvas.ctx.beginPath();
-    this.canvas.ctx.rect(this.x - (Paratrooper.TROOPER_HEAD_SIZE), this.y + Paratrooper.JUMP_Y_OFFSET + Paratrooper.TROOPER_HEAD_SIZE, (Paratrooper.TROOPER_HEAD_SIZE / 2), (Paratrooper.TROOPER_HEAD_SIZE / 2));
-    this.canvas.ctx.fill();
-
-    // Left arm.
-    this.canvas.ctx.fillStyle = Canvas.BLUE;
-    this.canvas.ctx.beginPath();
-    this.canvas.ctx.rect(this.x + (Paratrooper.TROOPER_HEAD_SIZE / 2), this.y + Paratrooper.JUMP_Y_OFFSET + Paratrooper.TROOPER_HEAD_SIZE, (Paratrooper.TROOPER_HEAD_SIZE / 2), (Paratrooper.TROOPER_HEAD_SIZE / 2));
-    this.canvas.ctx.fill();
-
-    // Right leg (left for the viewer).
-    this.canvas.ctx.fillStyle = Canvas.BLUE;
-    this.canvas.ctx.beginPath();
-    this.canvas.ctx.rect(this.x - (Paratrooper.TROOPER_HEAD_SIZE), this.y + Paratrooper.JUMP_Y_OFFSET + (2.5 * Paratrooper.TROOPER_HEAD_SIZE), (Paratrooper.TROOPER_HEAD_SIZE / 2), (1.5 * Paratrooper.TROOPER_HEAD_SIZE));
-    this.canvas.ctx.fill();
-
-    // Left leg.
-    this.canvas.ctx.fillStyle = Canvas.BLUE;
-    this.canvas.ctx.beginPath();
-    this.canvas.ctx.rect(this.x + (Paratrooper.TROOPER_HEAD_SIZE / 2), this.y + Paratrooper.JUMP_Y_OFFSET + (2.5 * Paratrooper.TROOPER_HEAD_SIZE), (Paratrooper.TROOPER_HEAD_SIZE / 2), (1.5 * Paratrooper.TROOPER_HEAD_SIZE));
-    this.canvas.ctx.fill();
-
+    ctx.fillRect(x - h / 2, y + h, h, 1.5 * h);
+    // Arms.
+    ctx.fillRect(x - h, y + h, h / 2, h / 2);
+    ctx.fillRect(x + h / 2, y + h, h / 2, h / 2);
+    // Legs.
+    ctx.fillRect(x - h, y + 2.5 * h, h / 2, 1.5 * h);
+    ctx.fillRect(x + h / 2, y + 2.5 * h, h / 2, 1.5 * h);
   }
 
 }

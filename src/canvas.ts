@@ -1,46 +1,65 @@
 export default class Canvas {
 
-  static readonly WHITE = "#ffffff";
+  static readonly WHITE = '#ffffff';
   static readonly PINK = '#fe52fc';
   static readonly BLACK = '#000000';
   static readonly BLUE = '#56faf7';
 
+  // The strip at the bottom of the canvas which shows the score.
+  static readonly HUD_HEIGHT = 80;
+  static readonly FONT = 'Courier, monospace';
+
+  element: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   width: number;
   height: number;
 
   constructor() {
-    // Select the elements on the page - canvas, reset button.
-    const canvas = <HTMLCanvasElement>document.querySelector('#paratrooper');
+    const element = document.querySelector<HTMLCanvasElement>('#paratrooper');
+    const ctx = element?.getContext('2d');
+    if (!element || !ctx) {
+      throw new Error('Could not find the #paratrooper canvas.');
+    }
 
-    this.ctx = canvas.getContext('2d');
-    this.width = canvas.width;
-    this.height = canvas.height;
+    this.element = element;
+    this.ctx = ctx;
+    this.width = element.width;
+    this.height = element.height;
   }
 
-  // Clear the canvas.
+  // The y coordinate of the ground everything lands on.
+  get groundY(): number {
+    return this.height - Canvas.HUD_HEIGHT;
+  }
+
+  get centerX(): number {
+    return this.width / 2;
+  }
+
+  // Clear the canvas with the background color.
   clear = (): void => {
-    this.ctx.clearRect(0, 0, this.width, this.height);
-  }
-
-  // Background color canvas.
-  setup = (): void => {
     this.ctx.fillStyle = Canvas.BLACK;
     this.ctx.fillRect(0, 0, this.width, this.height);
   }
 
-  // Get a random integer in a certain range.
-  getRndInteger(min: number, max: number): number {
-    return Math.floor(Math.random() * (max - min)) + min;
+  text = (text: string, x: number, y: number, size: number, align: CanvasTextAlign = 'left', color = Canvas.WHITE, baseline: CanvasTextBaseline = 'top'): void => {
+    this.ctx.fillStyle = color;
+    this.ctx.font = `${size}px ${Canvas.FONT}`;
+    this.ctx.textAlign = align;
+    this.ctx.textBaseline = baseline;
+    this.ctx.fillText(text, x, y);
   }
 
-  // Shuffle an array.
-  shuffle(a: any[]): any[] {
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
+  // Shake the canvas element (CSS animation), e.g. for big explosions.
+  shake = (): void => {
+    this.element.classList.remove('shake');
+    // Force a reflow so the animation restarts.
+    void this.element.offsetWidth;
+    this.element.classList.add('shake');
+  }
+
+  stopShake = (): void => {
+    this.element.classList.remove('shake');
   }
 
 }

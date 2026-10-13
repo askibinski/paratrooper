@@ -1,59 +1,46 @@
-export default class Container {
+// A minimal dependency injection container, typed by a map of service names
+// to their instance types.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Constructor<T> = new (...args: any[]) => T;
 
-  private services: Map<any, any>;
-  private singletons: Map<any, any>;
+interface Definition<S> {
+  definition: Constructor<S[keyof S]>;
+  dependencies: (keyof S)[];
+  singleton: boolean;
+}
 
-  constructor() {
-    this.services = new Map();
-    this.singletons = new Map();
+export default class Container<S> {
+
+  private services = new Map<keyof S, Definition<S>>();
+  private singletons = new Map<keyof S, S[keyof S]>();
+
+  // A new instance is created every time the service is requested.
+  register<K extends keyof S>(name: K, definition: Constructor<S[K]>, dependencies: (keyof S)[] = []): void {
+    this.services.set(name, { definition, dependencies, singleton: false });
   }
 
-  register(name: string, definition: object, dependencies: string[]) {
-    this.services.set(name, { definition: definition, dependencies: dependencies })
+  // The same instance is returned every time the service is requested.
+  singleton<K extends keyof S>(name: K, definition: Constructor<S[K]>, dependencies: (keyof S)[] = []): void {
+    this.services.set(name, { definition, dependencies, singleton: true });
   }
 
-  singleton(name: string, definition: object, dependencies: string[]) {
-    this.services.set(name, { definition: definition, dependencies: dependencies, singleton: true })
-  }
-
-  get(name: string) {
-    const c = this.services.get(name)
-    if (this.isClass(c.definition)) {
-      if (c.singleton) {
-        const singletonInstance = this.singletons.get(name);
-        if (singletonInstance) {
-          return singletonInstance;
-        } else {
-          const newSingletonInstance = this.createInstance(c);
-          this.singletons.set(name, newSingletonInstance);
-          return newSingletonInstance;
-        }
-      }
-      return this.createInstance(c);
+  get<K extends keyof S>(name: K): S[K] {
+    const service = this.services.get(name);
+    if (!service) {
+      throw new Error(`Service "${String(name)}" is not registered.`);
     }
-    else {
-      return c.definition;
+    if (!service.singleton) {
+      return this.createInstance(service) as S[K];
     }
-  }
-
-  // @TODO any !!!!!!!!!!!!!
-  getResolvedDependencies(service: any) {
-    let classDependencies = []
-    if (service.dependencies) {
-      classDependencies = service.dependencies.map((dep: string) => {
-        return this.get(dep);
-      })
+    if (!this.singletons.has(name)) {
+      this.singletons.set(name, this.createInstance(service));
     }
-    return classDependencies;
+    return this.singletons.get(name) as S[K];
   }
 
-  // @TODO any !!!!!!!!!!!!!
-  createInstance(service: any) {
-    return new service.definition(...this.getResolvedDependencies(service));
-  }
-
-  isClass(definition: object) {
-    return typeof definition === 'function';
+  private createInstance(service: Definition<S>): S[keyof S] {
+    const dependencies = service.dependencies.map((dependency) => this.get(dependency));
+    return new service.definition(...dependencies);
   }
 
 }

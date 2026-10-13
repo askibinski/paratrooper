@@ -1,31 +1,33 @@
-import Canvas from "./canvas.js";
+import Canvas from "./canvas";
+import { isTyping } from "./utils";
 
+// Frames per second counter, toggled with the F key.
 export default class FPS {
 
-  lastUpdate: number;
-  frameCounter: number;
-  fps: string;
+  visible = false;
+  private lastUpdate = performance.now();
+  private frameCounter = 0;
+  private fps = 0;
 
   constructor(readonly canvas: Canvas) {
-    this.lastUpdate = performance.now();
-    this.frameCounter = 0;
-    this.fps = '';
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'KeyF' && !e.repeat && !isTyping()) {
+        this.visible = !this.visible;
+      }
+    });
   }
 
   run = (): void => {
-    // Probably a very inacurate FPS counter. We'll see.
     this.frameCounter++;
     if (performance.now() - this.lastUpdate >= 1000) {
-      this.fps = <string><unknown>this.frameCounter;
+      this.fps = this.frameCounter;
       this.frameCounter = 0;
       this.lastUpdate = performance.now();
     }
 
-    this.canvas.ctx.fillStyle = Canvas.WHITE;
-    this.canvas.ctx.font = "48px Courier";
-    this.canvas.ctx.textAlign = "right"
-    this.canvas.ctx.textBaseline = "top";
-    this.canvas.ctx.fillText(`FPS:${this.fps}`, this.canvas.width - 10, this.canvas.height - 60);
+    if (this.visible) {
+      this.canvas.text(`FPS:${this.fps}`, this.canvas.width - 20, 20, 40, 'right');
+    }
   }
 
 }
